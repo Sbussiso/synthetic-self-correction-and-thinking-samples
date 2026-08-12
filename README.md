@@ -15,32 +15,33 @@
 ## The structure at a glance
 
 ```mermaid
-graph TD
-    Root[self-correction-seed-library] --> M[math]
-    Root --> C[code]
-    Root --> G[general]
-
-    M --> ME[easy · 1-2 blocks]
-    M --> MM[medium · 3 blocks]
-    M --> MH[hard · 4-5 blocks]
-
-    C --> CE[easy · 1-2 blocks]
-    C --> CM[medium · 3 blocks]
-    C --> CH[hard · 4-5 blocks]
-
-    G --> GE[easy · 1-2 blocks]
-    G --> GM[medium · 3 blocks]
-    G --> GH[hard · 4-5 blocks]
-
-    ME --> MEF[3 mode files · 100 records each]
-    MM --> MEF
-    MH --> MEF
-    CE --> MEF
-    CM --> MEF
-    CH --> MEF
-    GE --> MEF
-    GM --> MEF
-    GH --> MEF
+graph TB
+    subgraph REPO["Repository"]
+        direction TB
+        subgraph MATH["math"]
+            direction TB
+            M_E["easy<br>1–2 blocks<br>300 records"]
+            M_M["medium<br>3 blocks<br>300 records"]
+            M_H["hard<br>4–5 blocks<br>300 records"]
+            M_E ~~~ M_M ~~~ M_H
+        end
+        subgraph CODE["code"]
+            direction TB
+            C_E["easy<br>1–2 blocks<br>300 records"]
+            C_M["medium<br>3 blocks<br>300 records"]
+            C_H["hard<br>4–5 blocks<br>300 records"]
+            C_E ~~~ C_M ~~~ C_H
+        end
+        subgraph GEN["general"]
+            direction TB
+            G_E["easy<br>1–2 blocks<br>300 records"]
+            G_M["medium<br>3 blocks<br>300 records"]
+            G_H["hard<br>4–5 blocks<br>300 records"]
+            G_E ~~~ G_M ~~~ G_H
+        end
+        LEAF["each tier folder: 3 mode files × 100 records<br>wrong_then_fix.jsonl · right_and_confirm.jsonl · right_doubt_reaffirm.jsonl"]
+    end
+    REPO ~~~ LEAF
 ```
 
 Every leaf folder holds exactly three files — one per reasoning mode:
