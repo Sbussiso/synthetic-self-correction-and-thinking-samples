@@ -34,13 +34,26 @@ Each difficulty/mode folder contains exactly one file per reasoning mode:
 | Property | Value |
 |----------|-------|
 | Total files | 27 |
-| Records per file | 20 |
-| Total records | 540 |
+| Target records per file | 100 |
+| Total records | 2,340 |
 | Think blocks (easy) | 1–2 |
 | Think blocks (medium) | 3 |
 | Think blocks (hard) | 4–5 |
 | System prompts | ~30% of records per file |
 | Format | JSONL (one JSON object per line) |
+
+### Expansion status
+
+22 of 27 files are complete at 100 records. The remainder are still being
+written by hand:
+
+| File | Records |
+|------|--------:|
+| `general/medium/right_and_confirm.jsonl` | 60 |
+| `general/medium/right_doubt_reaffirm.jsonl` | 20 |
+| `general/hard/right_and_confirm.jsonl` | 20 |
+| `general/hard/right_doubt_reaffirm.jsonl` | 20 |
+| `general/hard/wrong_then_fix.jsonl` | 20 |
 
 ## Format
 
@@ -55,13 +68,26 @@ Each record is a chat-formatted JSON object with `messages` containing `user` an
 }
 ```
 
-The assistant content uses `<think>...</think>` tags to enclose reasoning blocks. Blocks are separated by `\n</think>\n\n<think>\n`. The final answer follows the last `</think>` tag.
+The assistant content uses `<think>...</think>` tags to enclose reasoning blocks. The final answer follows the last `</think>` tag.
+
+**Only the final answer appears outside the tags.** All reasoning lives inside a
+block, and no prose sits between one `</think>` and the next `<think>`. A record
+that emits visible text between blocks renders in a chat UI as several separate
+answers interleaved with collapsible reasoning, and teaches the model to break
+out of its reasoning mid-stream. This is the one structural rule that cannot be
+relaxed.
+
+Whitespace between blocks varies by file (`\n`, `\n\n`, or `\n\n\n`) and is
+internally consistent within each. Consumers should split on the tags rather
+than on exact whitespace.
 
 Newlines inside content strings are JSON-escaped (`\n`). Think tags use literal `<` and `>` characters. Files use Unix line endings.
 
 ## Design principles
 
-1. **Reasoning is intrinsic, not instruction-gated.** No system prompt tells the model to use think tags or to self-correct. The behavior is learned from examples, not from instructions. This ensures the model reasons by default, not only when told to.
+1. **Reasoning is intrinsic, not instruction-gated.** No system prompt tells the model to use think tags, to reason, to verify, or to self-correct. The behavior is learned from examples, not from instructions. This ensures the model reasons by default, not only when told to.
+
+   This extends past explicit commands to any prompt that *describes* the target behaviour. "You are a careful mathematician who verifies results through multiple independent methods" is gated just as surely as "think step by step", because it pairs the behaviour with a request for it. System prompts carry a persona and nothing more: `You are a careful mathematician.` is fine, and anything naming reasoning, verification, checking, or analysis is not.
 
 2. **Thinking depth scales with difficulty.** Easy questions get 1–2 think blocks (a quick check is enough). Medium questions get 3 (attempt, catch/verify, confirm). Hard questions get 4–5 (multiple rounds of catching, fixing, and verifying). The model learns to match effort to problem complexity.
 
@@ -70,6 +96,28 @@ Newlines inside content strings are JSON-escaped (`\n`). Think tags use literal 
 4. **Verification is independent.** When the model verifies an answer, it uses a genuinely different method — not just rechecking the same calculation. A math problem verified by formula is also checked by pairing, estimation, or substitution. A code problem verified by tracing is also checked by comparing with a Pythonic one-liner or testing edge cases.
 
 5. **Final answers include reasoning.** Complex answers briefly explain the method, not just state the result. Trivial answers stay short. The explanation depth scales with difficulty.
+
+## Validation
+
+```bash
+python validate.py
+```
+
+Exits non-zero on any structural violation: unbalanced tags, prose outside the
+tags other than the final answer, a block count that does not match the tier, an
+empty final answer, or a system prompt that instructs the reasoning. It also
+reports soft observations that do not fail the run, namely duplicate prompts and
+the most-repeated reasoning sentence per file.
+
+That last figure is worth watching while writing. A closing sentence that repeats
+across most of a file becomes a template the model reproduces verbatim, so keep
+reaffirmations varied rather than reaching for one stock phrase.
+
+**Shared prompts across patterns are intentional.** The same question appearing in
+`right_and_confirm` and in `wrong_then_fix` teaches that being right or wrong is
+not a property of the question, which is central to the method. The requirement is
+that both trajectories reach the *same* final answer; divergent answers for one
+prompt would be a contradiction in the training data.
 
 ## Combining files
 
