@@ -80,6 +80,36 @@ Easy problems get a quick check. Hard problems get multiple rounds of catching, 
 
 ---
 
+## The dataset, charted
+
+Charts generated from the actual data by [`charts/generate_charts.py`](charts/generate_charts.py) — rerun it any time the dataset changes.
+
+**A cell for every combination of domain and tier** — no gaps in the grid:
+
+![Structure grid](charts/structure_grid.png)
+
+**Reasoning scales with difficulty** — easy questions get a quick check, hard ones get multiple verification rounds, and the distribution barely overlaps. That's the core design principle, made visible:
+
+![Thinking depth by tier](charts/think_depth_by_tier.png)
+
+**Final answers do the same** — short for trivial questions, substantive for hard ones:
+
+![Final answer depth by tier](charts/final_answer_by_tier.png)
+
+**All three modes are evenly represented** — the same count of records and comparable thinking depth, so no single self-correction behavior dominates the training signal:
+
+![Mode comparison](charts/mode_comparison.png)
+
+**The reasoning-length distribution is trimodal** — easy, medium, and hard records form distinct humps with little overlap:
+
+![Reasoning length distribution](charts/think_length_distribution.png)
+
+**Every file is complete** — all 27 files hold exactly 100 records:
+
+![Records per file](charts/records_per_file.png)
+
+---
+
 ## The three reasoning modes
 
 ### `wrong_then_fix` — learning to catch your own errors

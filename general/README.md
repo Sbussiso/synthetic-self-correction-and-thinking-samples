@@ -14,6 +14,10 @@ Everything that isn't code or math: science reasoning, logic and fallacies, read
 
 900 records across 9 files, exactly 100 per file. Reasoning depth scales with tier: mean thinking length runs ~51 words at easy, ~168 at medium, and ~552 at hard; final answers run ~4, ~35, and ~96 words respectively. Roughly 30% of records carry a persona-only system prompt ("You are a helpful assistant.") — never a reasoning instruction.
 
+**Reasoning depth in this domain** — measured on the actual records, rendered by [`charts/generate_charts.py`](../charts/generate_charts.py):
+
+![Reasoning depth by tier in general](../charts/general_depth.png)
+
 ## Reasoning modes in this domain
 
 | File | Pattern |
