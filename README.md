@@ -87,7 +87,7 @@ Order does not matter for training — all files are independent.
 Python semantics, debugging, design patterns, data structures, algorithms, async/await, decorators, descriptors, metaclasses, context managers, closures, generators, and more. Covers common pitfalls (mutable defaults, late-binding closures, shallow copies, iterator exhaustion) as well as conceptual understanding (GIL, MRO, reference counting, dynamic typing).
 
 ### General
-Science misconceptions (seasons, sugar/hyperactivity, glass as liquid, Mpemba effect), logic (syllogisms, fallacies, knights and knaves), reading comprehension (pronoun resolution, double negatives, passage inference), causal reasoning (correlation vs causation, confounders), grammar (affect/effect, between you and I, data as plural), ethics, fact-checking, and planning.
+Science misconceptions (seasons, sugar/hyperactivity, glass as liquid, Mpemba effect) and science explanations derived from first principles (Olbers' paradox, mirror left-right reversal, tidal locking, Earth's core composition, square-cube law), logic (syllogisms, fallacies, knights and knaves), reading comprehension (pronoun resolution, double negatives, passage inference), causal reasoning (correlation vs causation, confounders), grammar (affect/effect, between you and I, data as plural), ethics, fact-checking, and planning.
 
 ### Math
 Arithmetic, percentages, probability, combinatorics, number theory (primes, modular arithmetic, irrationality proofs), algebra (quadratics, simultaneous equations, logarithms), geometry (areas, volumes, angles), sequences and series, compound interest, optimization, and Fermi estimation. Includes common math misconceptions (compound vs simple interest, percentage base asymmetry, without-replacement probability).
