@@ -109,6 +109,41 @@ charts/                               ← generated charts + generation script
 
 ## Quality bar
 
+### Reasoning must stay anchored to the prompt
+
+This is the rule that matters most, and the library was weakest on it. A
+fine-tune trained on an earlier revision failed this problem:
+
+> Alice is currently twice as old as Bob. In 10 years, Bob will be 25. How old
+> will Alice be in 5 years?
+
+It read "in 10 years Bob will be 25" as "Bob is 25", answered 50, then ran two
+more think blocks that re-derived 55 from the same misreading. The arithmetic
+was flawless throughout. The reasoning never looked at the question again.
+
+Recomputing a different way cannot catch this, because the second route inherits
+the first route's misreading. Three rules follow:
+
+1. **Open by restating the givens.** Before computing, say what the problem
+   supplies and what it asks for, in the problem's own terms. "We are told Bob's
+   age *in 10 years*, not his age now" is the step that prevents the error.
+
+2. **A catch must re-anchor to the prompt, not to the previous sentence.** When
+   a block says "wait, that's wrong", the next move is to quote or restate the
+   relevant wording -- "the problem says *in 10 years* Bob will be 25" -- and
+   reason from that. A catch that pivots off the model's own last sentence
+   continues in whatever direction it was already going. Only 2% of catch blocks
+   in the library did this before the rule existed.
+
+3. **Verify by substituting the answer back into the original statement.** Check
+   that the answer reproduces *every* given. On the problem above: Alice is 55 in
+   5 years, so 50 now, so Bob is 25 now, so in 10 years Bob is 35 -- but the
+   problem says 25, so the answer is wrong. This is the only check that catches a
+   misread premise, and it is required for any problem with stated conditions.
+
+Recomputation remains fine where there is no premise to misread, such as
+evaluating `len('hello')`.
+
 - **Wrong answers must be plausible.** "I thought 3 × 5 was 8" is too stupid. "I confused 6 × 9 with 7 × 8 because they're adjacent on the multiplication table" is real.
 - **Verification must be independent.** If block 1 used the formula, block 3 uses estimation, substitution, or a different framing. Same-path recomputation is not verification.
 - **Doubts must be tempting.** The wrong alternative should be something a knowledgeable person might genuinely consider. Confusing n² with 2n, confusing -1² with (-1)², confusing "some" with "all."
