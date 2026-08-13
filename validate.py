@@ -116,6 +116,23 @@ if cross_tier:
     for p, v in cross_tier[:10]:
         print(f"  {v[0]['domain']}  {sorted({x['tier'] for x in v})}  {p[:56]!r}")
 
+# A file can pass the repeated-sentence check and still be templated, because
+# every block opens the same way and then diverges. Check openings separately.
+print("\nblock openings sharing the same first four words (template risk):")
+openings = []
+for path, rs in by_file.items():
+    depth = max(len(r["blocks"]) for r in rs)
+    for pos in range(depth):
+        at = [r["blocks"][pos].strip() for r in rs if len(r["blocks"]) > pos]
+        if len(at) < 20:
+            continue
+        phrase, n = Counter(" ".join(b.split()[:4]) for b in at).most_common(1)[0]
+        openings.append((n / len(at), n, len(at), path, pos + 1, phrase))
+for share, n, tot, path, pos, phrase in sorted(openings, reverse=True)[:8]:
+    mark = "  <-- templated" if share >= 0.5 else ""
+    print(f"  {share:4.0%} ({n}/{tot})  {'/'.join(Path(path).parts):40s} block {pos}  "
+          f"{phrase!r}{mark}")
+
 print("\nmost repeated reasoning sentence per file (template risk):")
 worst = []
 for path, rs in by_file.items():
@@ -126,6 +143,27 @@ for path, rs in by_file.items():
         worst.append((n, path, s))
 for n, path, s in sorted(worst, reverse=True)[:8]:
     print(f"  {n:4d}x  {'/'.join(Path(path).parts):42s} {s[:56]!r}")
+
+# ---- train/eval split ------------------------------------------------
+if Path("dataset.jsonl").exists() and Path("eval.jsonl").exists():
+    def prompts(path):
+        out = []
+        for line in open(path, encoding="utf-8"):
+            if line.strip():
+                out.append(json.loads(line)["messages"][-2]["content"])
+        return out
+
+    tr, ev = prompts("dataset.jsonl"), prompts("eval.jsonl")
+    leak = set(tr) & set(ev)
+    print(f"\nsplit: dataset.jsonl {len(tr)} records, eval.jsonl {len(ev)} records")
+    if len(tr) + len(ev) != len(rows):
+        errors.append(f"split holds {len(tr) + len(ev)} records but the source has {len(rows)}")
+    if leak:
+        errors.append(f"{len(leak)} prompt(s) appear in BOTH dataset.jsonl and eval.jsonl, "
+                      f"so the model is scored on questions it trained on "
+                      f"(e.g. {sorted(leak)[0][:50]!r}). Rebuild with build.py.")
+    else:
+        print("       no prompt appears in both files")
 
 if errors:
     print(f"\n{len(errors)} STRUCTURAL ERROR(S):")

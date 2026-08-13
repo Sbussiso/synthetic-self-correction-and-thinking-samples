@@ -15,9 +15,9 @@ Each record must pass all of these:
 | ✅ Valid JSON, one record per line | JSONL requires it |
 | ✅ Messages are `user` + `assistant`, optionally preceded by `system` | No other roles, no other orders |
 | ✅ Assistant content opens with `<think>` and the final answer lives after the last `</think>` | Nothing visible between blocks |
-| ✅ Block count matches the tier: easy 1–2, medium 3, hard 4–5 | Depth must scale with difficulty |
+| ✅ Block count matches the tier: easy 1-2, medium 3, hard 4-5 | Depth must scale with difficulty |
 | ✅ Final answers are non-empty | Every record answers the question |
-| ✅ System prompts, when present, are persona only | "You are a careful mathematician." is fine. "You verify carefully." is not — it's instruction-gating |
+| ✅ System prompts, when present, are persona only | "You are a careful mathematician." is fine. "You verify carefully." is not -- it's instruction-gating |
 
 Run the gate before committing:
 
@@ -25,7 +25,7 @@ Run the gate before committing:
 python validate.py
 ```
 
-Any structural violation fails the run. Soft observations (duplicate prompts within a file, template-phrase repetition) don't fail but should be addressed — repetition across a file trains the model to reuse stock phrases.
+Any structural violation fails the run. Soft observations (duplicate prompts within a file, template-phrase repetition) don't fail but should be addressed -- repetition across a file trains the model to reuse stock phrases.
 
 ---
 
@@ -41,7 +41,7 @@ Each file is one of three reasoning modes, and every record in it must express t
 | `right_and_confirm` | A correct first answer, a genuine error check that finds nothing, then verification by a *genuinely different* method |
 | `right_doubt_reaffirm` | A correct first answer, a tempting wrong second-guess, then recognizing the *doubt itself* was the error |
 
-Modes are not interchangeable. "Wrong then fix" needs an error that a careful person could plausibly commit — wrong operation, wrong base rate, wrong rule — not a typo. "Right and confirm" needs verification that doesn't just recompute the same way. "Right doubt reaffirm" needs a doubt someone with real understanding might actually voice.
+Modes are not interchangeable. "Wrong then fix" needs an error that a careful person could plausibly commit -- wrong operation, wrong base rate, wrong rule -- not a typo. "Right and confirm" needs verification that doesn't just recompute the same way. "Right doubt reaffirm" needs a doubt someone with real understanding might actually voice.
 
 ### Wrong answers need to be plausible
 
@@ -49,7 +49,7 @@ Bad: "I thought 3 × 5 was 8." Nobody thinks that.
 
 Good: "I applied the formula without checking whether the premise held." Or: "I confused 6 × 9 with 7 × 8 because they're adjacent on the multiplication table." Those are the errors people actually make.
 
-The error should also be *diagnosable*. Block 2 should name *why* the first attempt was wrong — not just "wait, that's wrong," but what assumption, rule, or instinct led the answer astray.
+The error should also be *diagnosable*. Block 2 should name *why* the first attempt was wrong -- not just "wait, that's wrong," but what assumption, rule, or instinct led the answer astray.
 
 ### Verification must be independent
 
@@ -65,7 +65,7 @@ The reaffirmation in block 3 must explain *why* the doubt felt plausible and *wh
 
 ### Final answers
 
-Scale with difficulty. Trivial question: a bare number is fine. Medium: state the answer *and* the method in a sentence or two. Hard: explain the answer and the key insight, 60–150 words, without restating the thinking verbatim.
+Scale with difficulty. Trivial question: a bare number is fine. Medium: state the answer *and* the method in a sentence or two. Hard: explain the answer and the key insight, 60-150 words, without restating the thinking verbatim.
 
 > The same question may appear across modes. If it does, both paths must reach the same final answer. Divergent answers for identical prompts are contradictory training data and will be rejected.
 
@@ -87,10 +87,10 @@ Never anything that names reasoning, verification, checking, analysis, or step-b
 
 1. Pick the domain, tier, and mode file (e.g. `code/medium/wrong_then_fix.jsonl`).
 2. Write the question. Ask something a real person would actually ask.
-3. Write Block 1 as the *wrong* path — plausible, specific, diagnosable.
-4. Write Block 2 as the catch — what failed, and why it was tempting.
-5. Write Block 3 as the fix — complete, correct, then verified independently.
-6. (Hard only) Write Blocks 4–5 as additional verification rounds with different methods.
+3. Write Block 1 as the *wrong* path -- plausible, specific, diagnosable.
+4. Write Block 2 as the catch -- what failed, and why it was tempting.
+5. Write Block 3 as the fix -- complete, correct, then verified independently.
+6. (Hard only) Write Blocks 4-5 as additional verification rounds with different methods.
 7. Append as a JSONL line. `python validate.py`. If it flags the record, fix it before committing.
 8. Commit with a message naming the file and the change, e.g. `Add 1 record to code/medium/wrong_then_fix: late-binding closure`. 
 
@@ -115,6 +115,6 @@ Look at the existing records in the same file first. The style that already live
 
 `dataset.jsonl` is **generated** from the source library, never edited directly. See [`AGENTS.md`](AGENTS.md) for the rebuild procedure.
 
-`eval.jsonl` may be **edited directly** — it can contain records that don't exist in any source file, making it truly held-out evaluation data. If you regenerate it from the rebuild script, any hand-written eval records will be overwritten, so add them to a source file first or manage `eval.jsonl` separately.
+`eval.jsonl` may be **edited directly** -- it can contain records that don't exist in any source file, making it truly held-out evaluation data. If you regenerate it from the rebuild script, any hand-written eval records will be overwritten, so add them to a source file first or manage `eval.jsonl` separately.
 
 [🏠 Back to README](README.md)
