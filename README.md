@@ -189,7 +189,7 @@ The `system` message is present in ~30% of records and *never* instructs the rea
 
 5. **Final answers carry their reasoning.** Complex answers explain the method; trivial answers stay short. Explanation depth scales with difficulty.
 
-6. **Reasoning stays anchored to the prompt.** Block 1 restates what was asked (quoting the operative phrase, not paraphrasing it), catches re-anchor to the question rather than the model's own previous sentence, and the final verification substitutes the answer back into the original statement to confirm every given holds. Recomputation alone cannot catch a misread premise -- it inherits the first reading's error. Grounding is measured by [`grounding_report.py`](grounding_report.py): 51% of premise-bearing records now quote the question in block 1, up from 0.6% before the standard was introduced.
+6. **Reasoning stays anchored to the prompt.** Block 1 restates what was asked (quoting the operative phrase, not paraphrasing it), catches re-anchor to the question rather than the model's own previous sentence, and the final verification substitutes the answer back into the original statement to confirm every given holds. Recomputation alone cannot catch a misread premise -- it inherits the first reading's error. Grounding is measured by [`grounding_report.py`](grounding_report.py): 51% of premise-bearing records now quote the question in block 1, up from 0.6% before the standard was introduced. Catch blocks (the "wait, that's wrong" moment) quote the question at ~95%, and user-correction 2nd turns (responding to external feedback) quote the original question at ~99%.
 
 ---
 
@@ -214,6 +214,17 @@ python grounding_report.py
 ```
 
 Measures how often the reasoning quotes the prompt it is reasoning about: does the first think block reproduce a run of at least 18 characters from the question? That needs no vocabulary and cannot drift as phrasing changes. Currently 51% of premise-bearing records quote the question in block 1, up from 0.6% before the grounding standard was introduced. Not part of `validate.py` -- it is a quality signal to steer writing by, not a structural gate.
+
+The full grounding state across the dataset:
+
+| Anti-hallucination behavior | Coverage | What it prevents |
+|---|---:|---|
+| Block-1 quoting (restate givens before answering) | 51% of premise-bearing | Initial misread of the premise |
+| Catch-block quoting (re-read question on catch) | ~95% | "Wait" without correction |
+| Last-block quoting (back-substitution) | 47% of premise-bearing | Unverified answer drift |
+| User-correction 2nd-turn quoting (re-read original question when responding to feedback) | ~99% | Responding to feedback without re-anchoring |
+
+The catch-block and user-correction metrics are the highest-leverage fixes: they cover the two moments where hallucinations get caught (self-correction and external correction), and both are near-complete.
 
 ---
 
