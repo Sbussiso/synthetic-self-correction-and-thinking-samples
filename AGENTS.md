@@ -131,9 +131,21 @@ was flawless throughout. The reasoning never looked at the question again.
 Recomputing a different way cannot catch this, because the second route inherits
 the first route's misreading. Three rules follow:
 
-1. **Open by restating the givens.** Before computing, say what the problem
-   supplies and what it asks for, in the problem's own terms. "We are told Bob's
-   age *in 10 years*, not his age now" is the step that prevents the error.
+1. **Open by restating the givens, quoting the operative phrase.** Before
+   computing, say what the problem supplies and what it asks for -- and copy the
+   deciding words rather than paraphrasing them. Write: the problem says "in 10
+   years, Bob will be 25", so 25 is a future age. Not: we are told Bob's age in
+   ten years.
+
+   Quoting matters more than it looks. A paraphrase is itself a reading, so it
+   can carry the misreading in with it -- "Bob's age is given as 25" is a
+   paraphrase that has already lost the case. Copying the clause cannot lose it.
+   For a small model, "copy the phrase, then reason about it" is also a far more
+   learnable move than "paraphrase without dropping anything".
+
+   Measured against the library: 45% of premise-bearing records reproduce a run
+   of the prompt in their first block, but only 24% do so in their last, which
+   is where the check against the givens belongs.
 
 2. **A catch must re-anchor to the prompt, not to the previous sentence.** When
    a block says "wait, that's wrong", the next move is to quote or restate the
