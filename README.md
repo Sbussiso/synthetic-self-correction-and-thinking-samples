@@ -211,18 +211,18 @@ It also reports soft observations that don't fail the run: duplicate prompts wit
 python build.py
 ```
 
-Rebuilds `dataset.jsonl` and `eval.jsonl` from the 30 source files. The split is **grouped by prompt**, not by record index: all records sharing the same question land on the same side, so the model never trains on a question it is later scored on. Selection is by SHA-1 hash of the prompt, so the split is deterministic and stable -- editing one record does not reshuffle the rest.
+Rebuilds `dataset.jsonl` -- the complete training set of all 3,000 source records -- from the 30 source files. Nothing is held out for evaluation here, so no curated data is wasted.
+
+`eval.jsonl` is **not regenerated** by `build.py`. It is hand-curated held-out data: records that exist in no source file, so the model has never seen them during training. Edit `eval.jsonl` directly to add or change evaluation records. `validate.py` enforces that no prompt appears in both files -- that check is the "the model has not seen the eval data" guarantee. (The earlier prompt-grouped train/eval split is retired; leakage is now prevented by construction, since eval lives outside the source library, and guarded against accidental matches by `validate.py`.)
 
 The repo ships with two ready-to-use files at the root:
 
 | File | Records | Purpose |
 |------|--------:|---------|
-| [`dataset.jsonl`](dataset.jsonl) | **2,700** | Training |
-| [`eval.jsonl`](eval.jsonl) | **300** | Validation during training |
+| [`dataset.jsonl`](dataset.jsonl) | **3,000** | Training (every source record) |
+| [`eval.jsonl`](eval.jsonl) | **30** | Held-out evaluation (hand-curated, not in any source file) |
 
 Upload both to Unsloth Studio (or any compatible framework) as the training and validation files.
-
-`eval.jsonl` may also be edited directly to add hand-written evaluation records that don't exist in any source file -- truly held-out data the model has never seen.
 
 ---
 

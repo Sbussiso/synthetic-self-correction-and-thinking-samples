@@ -22,28 +22,21 @@ python build.py
 python validate.py
 ```
 
-`build.py` regenerates both files from the 30 source files and refuses to write
-a split that leaks.
+`build.py` regenerates `dataset.jsonl` -- the complete training set of all
+3,000 source records -- from the 30 source files. It no longer writes
+`eval.jsonl`; that file is hand-curated (see below).
 
-**The split is grouped by prompt, not by record index.** This matters because the
-library deliberately reuses the same question across reasoning modes: a question
-asked in `right_and_confirm` may also appear in `wrong_then_fix`, which is what
-teaches that being right or wrong is not a property of the question. Splitting on
-record index scatters copies of one prompt across both files, so the model meets
-the exact question during training and is then scored on it. An earlier
-index-based rebuild (`if i % 10 == 0`) put 9 prompts on both sides for this
-reason. `build.py` assigns whole prompt groups, and `validate.py` fails if any
-prompt appears in both files.
+**`eval.jsonl` is hand-curated held-out data.** It contains records that exist
+in no source file, so the model has never seen them during training. Edit it
+directly to add or change evaluation records. `validate.py` fails if any prompt
+appears in both `dataset.jsonl` and `eval.jsonl` -- that check is the
+"the model has not seen the eval data" guarantee. (An earlier prompt-grouped
+train/eval split, which drew eval from the source library, is retired; leakage
+is now prevented by construction, since eval lives outside the source library,
+and guarded against accidental prompt matches by `validate.py`.)
 
-Selection is by hash of the prompt, so the split is deterministic: re-running
-after editing one record does not reshuffle the rest.
-
-**Note:** the rebuild regenerates `eval.jsonl` from the source files. If you have
-hand-added evaluation records that exist in no source file, the rebuild will
-overwrite them. To keep them, add them to a source file first, or manage
-`eval.jsonl` outside the rebuild.
-
-If `validate.py` fails, fix the source files -- not `dataset.jsonl`.
+If `validate.py` fails, fix the source files (for `dataset.jsonl`) or the eval
+records (for `eval.jsonl`) -- never edit `dataset.jsonl` directly.
 
 ---
 
@@ -184,6 +177,6 @@ evaluating `len('hello')`.
 ## When you're done editing
 
 1. Run `python validate.py` -- must exit 0
-2. Rebuild `dataset.jsonl` and `eval.jsonl` from the source files (see above)
+2. Rebuild `dataset.jsonl` from the source files with `python build.py` (`eval.jsonl` is hand-curated, not regenerated)
 3. Commit with a message naming the files changed and what was done
 4. Push

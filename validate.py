@@ -162,6 +162,10 @@ for n, path, s in sorted(worst, reverse=True)[:8]:
     print(f"  {n:4d}x  {'/'.join(Path(path).parts):42s} {s[:56]!r}")
 
 # ---- train/eval split ------------------------------------------------
+# dataset.jsonl is the full training set (every source record, rebuilt by
+# build.py). eval.jsonl is hand-curated held-out data that exists in no source
+# file. The hard invariant is that no prompt appears in BOTH files -- that is
+# the "the model has not seen the eval data" guarantee.
 if Path("dataset.jsonl").exists() and Path("eval.jsonl").exists():
     def prompts(path):
         out = []
@@ -175,14 +179,18 @@ if Path("dataset.jsonl").exists() and Path("eval.jsonl").exists():
     tr, ev = prompts("dataset.jsonl"), prompts("eval.jsonl")
     leak = set(tr) & set(ev)
     print(f"\nsplit: dataset.jsonl {len(tr)} records, eval.jsonl {len(ev)} records")
-    if len(tr) + len(ev) != len(rows):
-        errors.append(f"split holds {len(tr) + len(ev)} records but the source has {len(rows)}")
+    # dataset.jsonl should hold every source record (build.py writes the full set)
+    if len(tr) != len(rows):
+        errors.append(f"dataset.jsonl holds {len(tr)} records but the source has "
+                      f"{len(rows)} -- rebuild with build.py")
+    # eval.jsonl is hand-curated; it must not share any prompt with the training set
     if leak:
-        errors.append(f"{len(leak)} prompt(s) appear in BOTH dataset.jsonl and eval.jsonl, "
+        errors.append(f"{len(leak)} eval prompt(s) also appear in dataset.jsonl, "
                       f"so the model is scored on questions it trained on "
-                      f"(e.g. {sorted(leak)[0][:50]!r}). Rebuild with build.py.")
+                      f"(e.g. {sorted(leak)[0][:50]!r}). Remove or rephrase the "
+                      f"offending eval record(s) in eval.jsonl.")
     else:
-        print("       no prompt appears in both files")
+        print("       no eval prompt appears in dataset.jsonl (eval is truly held out)")
 
 if errors:
     print(f"\n{len(errors)} STRUCTURAL ERROR(S):")
