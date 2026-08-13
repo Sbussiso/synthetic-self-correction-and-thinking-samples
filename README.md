@@ -220,7 +220,7 @@ The repo ships with two ready-to-use files at the root:
 | File | Records | Purpose |
 |------|--------:|---------|
 | [`dataset.jsonl`](dataset.jsonl) | **3,000** | Training (every source record) |
-| [`eval.jsonl`](eval.jsonl) | **30** | Held-out evaluation (hand-curated, not in any source file) |
+| [`eval.jsonl`](eval.jsonl) | **90** | Held-out evaluation (hand-curated, not in any source file) |
 
 Upload both to Unsloth Studio (or any compatible framework) as the training and validation files.
 
