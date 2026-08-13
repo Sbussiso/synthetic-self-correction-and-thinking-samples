@@ -10,6 +10,8 @@ Guidance for AI agents working in this repository.
 
 `eval.jsonl` is different -- it may be edited directly, because it can contain records that don't exist in any source file. The eval set is truly held-out data: records the model has never seen during training. You can add new evaluation records to `eval.jsonl` by hand, or regenerate it from the source library (see below). Either way, ensure no record appears in both `dataset.jsonl` and `eval.jsonl`.
 
+**Paraphrase contamination warning.** `validate.py` only checks *exact* prompt overlap. A new eval record that paraphrases a training prompt (e.g. "Is 97 prime?" vs "Is 97 a prime number?") will pass validation but is NOT held out -- the model trained on the same question, just worded differently. When adding eval records, manually check that the new prompt is not a paraphrase of any training prompt. The safest approach: use novel instances of the skill on material absent from training (e.g. test primality on 143, not 97), not canonical examples that the training library also covers.
+
 ```
 source files (canonical)  →  dataset.jsonl (generated, never edit)
 source files + hand-written eval records  →  eval.jsonl (editable)
