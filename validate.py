@@ -15,6 +15,13 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
+# Be robust to non-ASCII content (e.g. the "✓" checkmark in some records) when
+# stdout is piped through a non-UTF-8 console on Windows. Silent no-op elsewhere.
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
 TIER_BLOCKS = {"easy": {1, 2}, "medium": {3}, "hard": {4, 5}, "mix": {1, 2, 3, 4, 5}}
 # any system prompt naming the target behaviour is instruction-gating
 GATED = re.compile(
