@@ -22,7 +22,10 @@ construction, and validate.py's no-overlap check guards against accidental
 prompt matches.)
 """
 import glob
+import random
 from pathlib import Path
+
+SEED = 42  # fixed seed for reproducible shuffling
 
 rows = []
 files = sorted(glob.glob("src/*/*/*.jsonl"))
@@ -31,6 +34,13 @@ for path in files:
         line = line.strip()
         if line:
             rows.append(line)
+
+# Shuffle with a fixed seed so the build is reproducible: every rebuild
+# produces the same interleaved order. Without this, records are blocked by
+# domain -> tier -> mode (alphabetical file order), which causes catastrophic
+# forgetting and homogeneous per-batch gradients during training.
+random.seed(SEED)
+random.shuffle(rows)
 
 Path("dataset.jsonl").write_bytes(("\n".join(rows) + "\n").encode("utf-8"))
 
