@@ -42,7 +42,12 @@ for path in sorted(glob.glob("*/*/*.jsonl")):
             continue
 
         roles = [m["role"] for m in msgs]
-        if roles not in (["user", "assistant"], ["system", "user", "assistant"]):
+        body = roles[1:] if roles and roles[0] == "system" else roles
+        # optional system, then strictly alternating user/assistant, ending on assistant
+        ok = (len(body) >= 2 and len(body) % 2 == 0
+              and all(r == ("user" if k % 2 == 0 else "assistant")
+                      for k, r in enumerate(body)))
+        if not ok:
             errors.append(f"{loc} unexpected role sequence {roles}")
             continue
 
@@ -50,35 +55,44 @@ for path in sorted(glob.glob("*/*/*.jsonl")):
             errors.append(f"{loc} system prompt instructs the behaviour: "
                           f"{msgs[0]['content'][:70]!r}")
 
-        a = msgs[-1]["content"]
-        blocks = re.findall(r"<think>(.*?)</think>", a, re.S)
-
-        if a.count("<think>") != a.count("</think>") or len(blocks) != a.count("<think>"):
-            errors.append(f"{loc} unbalanced or nested think tags")
+        # every assistant turn must satisfy the block invariants, not just the last
+        assistants = [m["content"] for m in msgs if m["role"] == "assistant"]
+        all_blocks, per_turn, broken = [], [], False
+        for t, a in enumerate(assistants):
+            where = f"{loc} turn {t + 1}" if len(assistants) > 1 else loc
+            blocks = re.findall(r"<think>(.*?)</think>", a, re.S)
+            if a.count("<think>") != a.count("</think>") or len(blocks) != a.count("<think>"):
+                errors.append(f"{where} unbalanced or nested think tags")
+                broken = True
+                break
+            if not blocks:
+                errors.append(f"{where} no think block")
+                broken = True
+                break
+            if not a.startswith("<think>"):
+                errors.append(f"{where} content before the first think block")
+            if a.rstrip().endswith("</think>"):
+                errors.append(f"{where} ends inside a think block, no final answer")
+            if "<think>" in a.split("</think>")[-1]:
+                errors.append(f"{where} think tag after the final block")
+            if not a.split("</think>")[-1].strip():
+                errors.append(f"{where} empty final answer")
+            stray = [x.strip() for x in re.split(r"</?think>", a)[:-1:2] if x.strip()]
+            if stray:
+                errors.append(f"{where} prose between think blocks: {stray[0][:60]!r}")
+            if len(blocks) not in TIER_BLOCKS[tier]:
+                errors.append(f"{where} {tier} tier requires "
+                              f"{sorted(TIER_BLOCKS[tier])} blocks per assistant turn, "
+                              f"found {len(blocks)}")
+            all_blocks += blocks
+            per_turn.append(len(blocks))
+        if broken:
             continue
-        if not blocks:
-            errors.append(f"{loc} no think block")
-            continue
-        if not a.startswith("<think>"):
-            errors.append(f"{loc} content before the first think block")
-        if a.rstrip().endswith("</think>"):
-            errors.append(f"{loc} ends inside a think block, no final answer")
-        if "<think>" in a.split("</think>")[-1]:
-            errors.append(f"{loc} think tag after the final block")
-        if not a.split("</think>")[-1].strip():
-            errors.append(f"{loc} empty final answer")
 
-        # only the text after the LAST </think> may sit outside the tags
-        stray = [x.strip() for x in re.split(r"</?think>", a)[:-1:2] if x.strip()]
-        if stray:
-            errors.append(f"{loc} prose between think blocks: {stray[0][:60]!r}")
-
-        if len(blocks) not in TIER_BLOCKS[tier]:
-            errors.append(f"{loc} {tier} tier requires "
-                          f"{sorted(TIER_BLOCKS[tier])} blocks, found {len(blocks)}")
-
+        first_user = next(m["content"] for m in msgs if m["role"] == "user")
         rows.append(dict(path=path, i=i, domain=domain, tier=tier,
-                         prompt=msgs[-2]["content"], blocks=blocks,
+                         prompt=first_user, blocks=all_blocks,
+                         turns=len(assistants), per_turn=per_turn,
                          has_sys=roles[0] == "system"))
 
 # ---- per-file summary -------------------------------------------------
@@ -88,10 +102,13 @@ for r in rows:
 
 print(f"{'file':46s} {'n':>4s} {'blocks':>14s} {'sys':>5s} {'avg':>6s}")
 for path, rs in sorted(by_file.items()):
-    counts = sorted(Counter(len(r["blocks"]) for r in rs).items())
+    counts = sorted(Counter(n for r in rs for n in r["per_turn"]).items())
     n_sys = sum(r["has_sys"] for r in rs)
+    mt = sum(r["turns"] > 1 for r in rs)
     avg = sum(sum(len(b.strip()) for b in r["blocks"]) for r in rs) // len(rs)
     flag = "" if len(rs) == 100 else f"  <- {100 - len(rs)} to write"
+    if mt:
+        flag = f"  [{mt} multi-turn]" + flag
     print(f"{'/'.join(Path(path).parts):46s} {len(rs):4d} {str(counts):>14s} "
           f"{n_sys:5d} {avg:6d}{flag}")
 
@@ -150,7 +167,9 @@ if Path("dataset.jsonl").exists() and Path("eval.jsonl").exists():
         out = []
         for line in open(path, encoding="utf-8"):
             if line.strip():
-                out.append(json.loads(line)["messages"][-2]["content"])
+                ms = json.loads(line)["messages"]
+                # key on the FIRST user turn, matching build.py
+                out.append(next(m["content"] for m in ms if m["role"] == "user"))
         return out
 
     tr, ev = prompts("dataset.jsonl"), prompts("eval.jsonl")

@@ -32,7 +32,8 @@ for path in sorted(glob.glob("*/*/*.jsonl")):
         if not line:
             continue
         rec = json.loads(line)
-        prompt = rec["messages"][-2]["content"]
+        # group on the FIRST user turn: multi-turn records must not be split
+        prompt = next(m["content"] for m in rec["messages"] if m["role"] == "user")
         if prompt not in groups:
             order.append(prompt)
         groups[prompt].append(json.dumps(rec, ensure_ascii=False))
@@ -57,8 +58,12 @@ for q in order:
 for name, rows in (("dataset.jsonl", train), ("eval.jsonl", ev)):
     Path(name).write_bytes(("\n".join(rows) + "\n").encode("utf-8"))
 
-tp = {json.loads(r)["messages"][-2]["content"] for r in train}
-ep = {json.loads(r)["messages"][-2]["content"] for r in ev}
+def _first_user(r):
+    return next(m["content"] for m in json.loads(r)["messages"] if m["role"] == "user")
+
+
+tp = {_first_user(r) for r in train}
+ep = {_first_user(r) for r in ev}
 assert not (tp & ep), f"prompt leakage: {len(tp & ep)}"
 assert len(train) + len(ev) == total, "split does not partition the source"
 
