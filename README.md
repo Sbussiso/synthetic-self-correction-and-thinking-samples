@@ -185,9 +185,11 @@ The `system` message is present in ~30% of records and *never* instructs the rea
 
 3. **All three modes exist at all difficulty levels.** You can make careless errors on easy questions and be right on hard ones. No mode is confined to a single difficulty.
 
-4. **Verification is always independent.** A math answer verified by formula is also checked by estimation or substitution. A code answer verified by tracing is also checked against docs, edge cases, or an equivalent one-liner.
+4. **Verification is always independent.** A math answer verified by formula is also checked by estimation or substitution. A code answer verified by tracing is also checked against docs, edge cases, or an equivalent one-liner. For problems with stated conditions, the final check substitutes the answer back into the original wording -- recomputation alone inherits the first reading's errors.
 
 5. **Final answers carry their reasoning.** Complex answers explain the method; trivial answers stay short. Explanation depth scales with difficulty.
+
+6. **Reasoning stays anchored to the prompt.** Block 1 restates what was asked (quoting the operative phrase, not paraphrasing it), catches re-anchor to the question rather than the model's own previous sentence, and the final verification substitutes the answer back into the original statement to confirm every given holds. Recomputation alone cannot catch a misread premise -- it inherits the first reading's error. Grounding is measured by [`grounding_report.py`](grounding_report.py): 51% of premise-bearing records now quote the question in block 1, up from 0.6% before the standard was introduced.
 
 ---
 
@@ -202,6 +204,16 @@ Exits non-zero on any structural violation: unbalanced tags, prose outside the t
 It also reports soft observations that don't fail the run: duplicate prompts within a single file, and the most-repeated reasoning sentence per file (template risk). Watch that last one while writing -- a closing sentence that repeats across a file becomes a habit the model reproduces verbatim.
 
 **Shared prompts across modes are intentional.** The same question appearing in `right_and_confirm` and `wrong_then_fix` teaches that being right or wrong is not a property of the question.
+
+---
+
+## Grounding check
+
+```bash
+python grounding_report.py
+```
+
+Measures how often the reasoning quotes the prompt it is reasoning about: does the first think block reproduce a run of at least 18 characters from the question? That needs no vocabulary and cannot drift as phrasing changes. Currently 51% of premise-bearing records quote the question in block 1, up from 0.6% before the grounding standard was introduced. Not part of `validate.py` -- it is a quality signal to steer writing by, not a structural gate.
 
 ---
 

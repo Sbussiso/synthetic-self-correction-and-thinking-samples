@@ -67,6 +67,16 @@ If block 1 used the formula, block 3 must use something else: estimation, substi
 
 Never: "Let me recompute the same way and see if I get the same answer." Same-path recomputation is not a check.
 
+### Grounding: reasoning must stay anchored to the prompt
+
+Recomputation alone cannot catch a misread premise -- it inherits the first reading's error. Three rules prevent this:
+
+1. **Open by restating the givens.** Before computing, quote the operative phrase from the question (verbatim, not paraphrased). A paraphrase is itself a reading and can carry the misreading in.
+2. **Catches re-anchor to the prompt.** When a block says "wait, that's wrong", the next move is to re-read the relevant wording from the question, not to pivot off the model's own previous sentence.
+3. **Verify by back-substitution.** Check that the answer reproduces every given in the original statement. This is the only check that catches a misread premise.
+
+Not every record needs all three -- `len('hello')` has no premise to misread. But any record with stated conditions (word problems, relational questions, hypotheticals) should follow this pattern. Grounding is measured by `python grounding_report.py`.
+
 ### Doubts need to be tempting
 
 The wrong alternative in `right_doubt_reaffirm` should be something a knowledgeable person might genuinely consider after a second look. Confusing `n²` with `2n`. Confusing the empty-product convention with "0 of anything is 0." Confusing "some" with "all." Confusing -1² with (−1)². Confusing the principal square root with the solution set of x² = k.
