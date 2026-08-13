@@ -6,7 +6,7 @@ Guidance for AI agents working in this repository.
 
 ## The golden rule
 
-**Never edit `dataset.jsonl` directly.** It is a derived artifact, rebuilt from the source library. Always edit the source files (the 30 JSONL files under `math/`, `code/`, `general/`, `user_correction/mix/`) and then rebuild.
+**Never edit `dataset.jsonl` directly.** It is a derived artifact, rebuilt from the source library. Always edit the source files (the 30 JSONL files under `src/math/`, `src/code/`, `src/general/`, `src/user_correction/mix/`) and then rebuild.
 
 `eval.jsonl` is different -- it may be edited directly, because it can contain records that don't exist in any source file. The eval set is truly held-out data: records the model has never seen during training. You can add new evaluation records to `eval.jsonl` by hand, or regenerate it from the source library (see below). Either way, ensure no record appears in both `dataset.jsonl` and `eval.jsonl`.
 
@@ -51,9 +51,9 @@ Built by S'Bussiso Dube (human supervision and review), GLM-5.2, Kimi-k3, and Cl
 ## Structure
 
 ```
-math/easy/wrong_then_fix.jsonl        ← source file (canonical)
-math/easy/right_and_confirm.jsonl     ← source file (canonical)
-math/easy/right_doubt_reaffirm.jsonl  ← source file (canonical)
+src/math/easy/wrong_then_fix.jsonl        ← source file (canonical)
+src/math/easy/right_and_confirm.jsonl     ← source file (canonical)
+src/math/easy/right_doubt_reaffirm.jsonl  ← source file (canonical)
 ... (27 more source files)
 dataset.jsonl                         ← DERIVED -- do not edit directly
 eval.jsonl                            ← editable (may hold held-out records)
@@ -98,7 +98,7 @@ charts/                               ← generated charts + generation script
 - (Hard tier: Blocks 4-5 add deeper verification or a second rejected doubt)
 - Final answer: states the (original) correct answer with brief reasoning
 
-### `user_correction/mix/` (multi-turn, all three modes)
+### `src/user_correction/mix/` (multi-turn, all three modes)
 Every record is a four-message conversation, and each of the three mode files lives here with the same mode semantics as above -- but triggered by a second **user** turn rather than arising internally:
 - Message 1 (user): the question
 - Message 2 (assistant): an initial answer with its own think blocks + final answer

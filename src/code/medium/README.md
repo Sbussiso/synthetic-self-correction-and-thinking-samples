@@ -1,4 +1,4 @@
-[🏠 Home](../../README.md) / [Code](../README.md) / **Medium**
+[🏠 Home](../../../README.md) / [Code](../README.md) / **Medium**
 
 # Code / Medium
 
@@ -28,4 +28,4 @@ Medium sits between a value-check and a protocol audit. [Code / Easy](../easy/RE
 
 ---
 
-[🏠 Home](../../README.md) · [Code](../README.md) · [Easy](../easy/README.md) · ← Medium · [Hard](../hard/README.md)
+[🏠 Home](../../../README.md) · [Code](../README.md) · [Easy](../easy/README.md) · ← Medium · [Hard](../hard/README.md)

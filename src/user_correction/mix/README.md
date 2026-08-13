@@ -1,4 +1,4 @@
-[🏠 Home](../../README.md) / **User correction**
+[🏠 Home](../../../README.md) / **User correction**
 
 # User correction
 
@@ -97,4 +97,4 @@ The same question sometimes appears in a `user_correction` record and in a singl
 
 ---
 
-[🏠 Home](../../README.md)
+[🏠 Home](../../../README.md)

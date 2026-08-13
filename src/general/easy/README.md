@@ -1,4 +1,4 @@
-[🏠 Home](../../README.md) / [General](../README.md) / **Easy**
+[🏠 Home](../../../README.md) / [General](../README.md) / **Easy**
 
 # General / Easy
 
@@ -28,4 +28,4 @@ One tier up, the confident surface answer starts to fail on content: an ice-crea
 
 ---
 
-[🏠 Home](../../README.md) · [General](../README.md) · ← Easy · [Medium](../medium/README.md) · [Hard](../hard/README.md)
+[🏠 Home](../../../README.md) · [General](../README.md) · ← Easy · [Medium](../medium/README.md) · [Hard](../hard/README.md)

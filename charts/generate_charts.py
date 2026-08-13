@@ -61,10 +61,10 @@ def load_records():
     turns so a record's depth reflects the whole conversation.
     """
     recs = []
-    for path in sorted(ROOT.glob("*/*/*.jsonl")):
+    for path in sorted(ROOT.glob("src/*/*/*.jsonl")):
         rel = path.relative_to(ROOT).parts
-        domain, tier = rel[0], rel[1]
-        mode = rel[2].replace(".jsonl", "")
+        domain, tier = rel[1], rel[2]
+        mode = rel[3].replace(".jsonl", "")
         with open(path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()

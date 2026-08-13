@@ -25,7 +25,7 @@ import glob
 from pathlib import Path
 
 rows = []
-files = sorted(glob.glob("*/*/*.jsonl"))
+files = sorted(glob.glob("src/*/*/*.jsonl"))
 for path in files:
     for line in open(path, encoding="utf-8"):
         line = line.strip()

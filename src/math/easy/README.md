@@ -1,4 +1,4 @@
-[🏠 Home](../../README.md) / [Math](../README.md) / **Easy**
+[🏠 Home](../../../README.md) / [Math](../README.md) / **Easy**
 
 # Math / Easy
 
@@ -28,4 +28,4 @@ One tier up, the wrong approach starts to *feel* right: a 25% discount followed 
 
 ---
 
-[🏠 Home](../../README.md) · [Math](../README.md) · ← Easy · [Medium](../medium/README.md) · [Hard](../hard/README.md)
+[🏠 Home](../../../README.md) · [Math](../README.md) · ← Easy · [Medium](../medium/README.md) · [Hard](../hard/README.md)

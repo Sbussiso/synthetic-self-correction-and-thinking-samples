@@ -31,9 +31,9 @@ GATED = re.compile(
 errors = []
 rows = []
 
-for path in sorted(glob.glob("*/*/*.jsonl")):
+for path in sorted(glob.glob("src/*/*/*.jsonl")):
     parts = Path(path).parts
-    domain, tier = parts[0], parts[1]
+    domain, tier = parts[1], parts[2]
     for i, line in enumerate(open(path, encoding="utf-8")):
         if not line.strip():
             continue

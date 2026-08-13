@@ -147,10 +147,10 @@ The model learns to **accept corrections gracefully** when it's wrong, **defend 
 
 ## Domains
 
-- **[`math/`](math/README.md)** -- arithmetic, algebra, probability, combinatorics, number theory, geometry, calculus, sequences and series, optimization, Fermi estimation. From "What is 5 + 5?" to "Does the harmonic series diverge?"
-- **[`code/`](code/README.md)** -- Python semantics, debugging, design patterns, algorithms, data structures, metaprogramming, concurrency, async. From `len("hello")` to descriptor protocols and the GIL.
-- **[`general/`](general/README.md)** -- science reasoning (Olbers' paradox, tidal locking, square-cube law), logic (syllogisms, fallacies, knights and knaves), reading comprehension, causal reasoning, grammar, ethics, history, planning. Everything that isn't code or math.
-- **[`user_correction/`](user_correction/mix/README.md)** -- multi-turn conversations where the user actively corrects, challenges, or asks to verify the assistant's answer. Mixed difficulty (easy + medium + hard in one folder).
+- **[`math/`](src/math/README.md)** -- arithmetic, algebra, probability, combinatorics, number theory, geometry, calculus, sequences and series, optimization, Fermi estimation. From "What is 5 + 5?" to "Does the harmonic series diverge?"
+- **[`code/`](src/code/README.md)** -- Python semantics, debugging, design patterns, algorithms, data structures, metaprogramming, concurrency, async. From `len("hello")` to descriptor protocols and the GIL.
+- **[`general/`](src/general/README.md)** -- science reasoning (Olbers' paradox, tidal locking, square-cube law), logic (syllogisms, fallacies, knights and knaves), reading comprehension, causal reasoning, grammar, ethics, history, planning. Everything that isn't code or math.
+- **[`user_correction/`](src/user_correction/mix/README.md)** -- multi-turn conversations where the user actively corrects, challenges, or asks to verify the assistant's answer. Mixed difficulty (easy + medium + hard in one folder).
 
 ---
 
@@ -233,10 +233,10 @@ Upload both to Unsloth Studio (or any compatible framework) as the training and 
 | 🏠 This page | Overview, format, principles |
 | ➕ [CONTRIBUTING.md](CONTRIBUTING.md) | How to add records: style rules, quality bar, validation gates |
 | 🤖 [AGENTS.md](AGENTS.md) | Rules for AI agents working in this repo |
-| 📐 [Math domain](math/README.md) | Topic coverage, sample records, tier/mode links |
-| 💻 [Code domain](code/README.md) | Topic coverage, sample records, tier/mode links |
-| 🌍 [General domain](general/README.md) | Topic coverage, sample records, tier/mode links |
-| 💬 [User correction](user_correction/mix/README.md) | Multi-turn correction conversations, mixed difficulty |
+| 📐 [Math domain](src/math/README.md) | Topic coverage, sample records, tier/mode links |
+| 💻 [Code domain](src/code/README.md) | Topic coverage, sample records, tier/mode links |
+| 🌍 [General domain](src/general/README.md) | Topic coverage, sample records, tier/mode links |
+| 💬 [User correction](src/user_correction/mix/README.md) | Multi-turn correction conversations, mixed difficulty |
 
 ---
 

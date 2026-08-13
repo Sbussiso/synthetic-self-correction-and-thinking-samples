@@ -1,4 +1,4 @@
-[🏠 Home](../../README.md) / [Math](../README.md) / **Hard**
+[🏠 Home](../../../README.md) / [Math](../README.md) / **Hard**
 
 # Math / Hard
 
@@ -28,4 +28,4 @@ Hard is where the three modes stretch furthest apart: a wrong first block costs 
 
 ---
 
-[🏠 Home](../../README.md) · [Math](../README.md) · [Easy](../easy/README.md) · [Medium](../medium/README.md) · ← Hard
+[🏠 Home](../../../README.md) · [Math](../README.md) · [Easy](../easy/README.md) · [Medium](../medium/README.md) · ← Hard

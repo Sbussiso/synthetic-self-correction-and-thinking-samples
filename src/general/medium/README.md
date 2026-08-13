@@ -1,4 +1,4 @@
-[🏠 Home](../../README.md) / [General](../README.md) / **Medium**
+[🏠 Home](../../../README.md) / [General](../README.md) / **Medium**
 
 # General / Medium
 
@@ -28,4 +28,4 @@ Medium sits between a sanity check and a mechanism-level defense. [General / Eas
 
 ---
 
-[🏠 Home](../../README.md) · [General](../README.md) · [Easy](../easy/README.md) · ← Medium · [Hard](../hard/README.md)
+[🏠 Home](../../../README.md) · [General](../README.md) · [Easy](../easy/README.md) · ← Medium · [Hard](../hard/README.md)

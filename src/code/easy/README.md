@@ -1,4 +1,4 @@
-[🏠 Home](../../README.md) / [Code](../README.md) / **Easy**
+[🏠 Home](../../../README.md) / [Code](../README.md) / **Easy**
 
 # Code / Easy
 
@@ -28,4 +28,4 @@ One tier up, the confident answer starts to fail on semantics: a mutable default
 
 ---
 
-[🏠 Home](../../README.md) · [Code](../README.md) · ← Easy · [Medium](../medium/README.md) · [Hard](../hard/README.md)
+[🏠 Home](../../../README.md) · [Code](../README.md) · ← Easy · [Medium](../medium/README.md) · [Hard](../hard/README.md)

@@ -95,14 +95,14 @@ Never anything that names reasoning, verification, checking, analysis, or step-b
 
 ## Step-by-step for a new record
 
-1. Pick the domain, tier, and mode file (e.g. `code/medium/wrong_then_fix.jsonl`).
+1. Pick the domain, tier, and mode file (e.g. `src/code/medium/wrong_then_fix.jsonl`).
 2. Write the question. Ask something a real person would actually ask.
 3. Write Block 1 as the *wrong* path -- plausible, specific, diagnosable.
 4. Write Block 2 as the catch -- what failed, and why it was tempting.
 5. Write Block 3 as the fix -- complete, correct, then verified independently.
 6. (Hard only) Write Blocks 4-5 as additional verification rounds with different methods.
 7. Append as a JSONL line. `python validate.py`. If it flags the record, fix it before committing.
-8. Commit with a message naming the file and the change, e.g. `Add 1 record to code/medium/wrong_then_fix: late-binding closure`. 
+8. Commit with a message naming the file and the change, e.g. `Add 1 record to src/code/medium/wrong_then_fix: late-binding closure`. 
 
 ---
 

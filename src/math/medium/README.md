@@ -1,4 +1,4 @@
-[🏠 Home](../../README.md) / [Math](../README.md) / **Medium**
+[🏠 Home](../../../README.md) / [Math](../README.md) / **Medium**
 
 # Math / Medium
 
@@ -28,4 +28,4 @@ Medium sits between a sanity check and a proof. [Math / Easy](../easy/README.md)
 
 ---
 
-[🏠 Home](../../README.md) · [Math](../README.md) · [Easy](../easy/README.md) · ← Medium · [Hard](../hard/README.md)
+[🏠 Home](../../../README.md) · [Math](../README.md) · [Easy](../easy/README.md) · ← Medium · [Hard](../hard/README.md)
