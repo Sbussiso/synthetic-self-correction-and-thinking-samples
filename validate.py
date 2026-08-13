@@ -15,7 +15,7 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
-TIER_BLOCKS = {"easy": {1, 2}, "medium": {3}, "hard": {4, 5}}
+TIER_BLOCKS = {"easy": {1, 2}, "medium": {3}, "hard": {4, 5}, "mix": {1, 2, 3, 4, 5}}
 # any system prompt naming the target behaviour is instruction-gating
 GATED = re.compile(
     r"\b(think|thinking|step by step|reason|reasoning|verif|double.?check|"
