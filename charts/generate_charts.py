@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Generate the dataset charts used across the documentation.
 
-Reads every JSONL file, computes reasoning depth (words inside think blocks) and
-final-answer length per record, and renders PNG charts into charts/.
+Reads every JSONL file under the domain/tier/mode tree (including the
+user_correction/mix category), computes reasoning depth (words inside think
+blocks) and final-answer length per assistant turn, and renders PNG charts
+into charts/.
 
 Run from the repository root:
 
@@ -14,15 +16,21 @@ from pathlib import Path
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "charts"
 
-T_OPEN, T_CLOSE = "<think>", "</think>"
+T_OPEN = chr(60) + "think" + chr(62)  # opening tag
+T_CLOSE = chr(60) + "/think" + chr(62)  # closing tag
 
-TIERS = ["easy", "medium", "hard"]
+# The three domains whose difficulty is separated into easy/medium/hard folders.
+SEPARATED_DOMAINS = ["math", "code", "general"]
+# user_correction is the exception: a single "mix" folder spanning all depths.
+MIX_DOMAIN = "user_correction"
+
+TIERS = ["easy", "medium", "hard", "mix"]
 MODES = ["wrong_then_fix", "right_and_confirm", "right_doubt_reaffirm"]
-DOMAINS = ["math", "code", "general"]
 
 MODE_LABEL = {
     "wrong_then_fix": "wrong → catch → fix",
@@ -31,8 +39,14 @@ MODE_LABEL = {
 }
 
 # palette: calm, readable on white; used consistently across all charts
-TIER_COLOR = {"easy": "#7fb07f", "medium": "#e0a458", "hard": "#b45252"}
+TIER_COLOR = {
+    "easy": "#7fb07f",
+    "medium": "#e0a458",
+    "hard": "#b45252",
+    "mix": "#5b8db8",   # distinct blue — the blended category
+}
 DOMAIN_COLOR = {"math": "#4a6fa5", "code": "#3d7d7d", "general": "#a06b9e"}
+MIX_DOMAIN_COLOR = "#5b8db8"
 MODE_COLOR = {
     "wrong_then_fix": "#b45252",
     "right_and_confirm": "#4a8059",
@@ -41,27 +55,41 @@ MODE_COLOR = {
 
 
 def load_records():
-    """Return list of dicts: domain, tier, mode, think_words, final_words."""
+    """Return list of dicts: domain, tier, mode, think_words, final_words, turns.
+
+    For multi-turn records, think/final words are summed across all assistant
+    turns so a record's depth reflects the whole conversation.
+    """
     recs = []
     for path in sorted(ROOT.glob("*/*/*.jsonl")):
         rel = path.relative_to(ROOT).parts
-        domain, tier, mode = rel[0], rel[1], rel[2].replace(".jsonl", "")
+        domain, tier = rel[0], rel[1]
+        mode = rel[2].replace(".jsonl", "")
         with open(path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
                     continue
                 rec = json.loads(line)
-                content = rec["messages"][-1]["content"]
-                parts = content.split(T_CLOSE)
-                thinking = " ".join(p.strip() for p in parts[:-1]).replace(T_OPEN, "")
-                final = parts[-1].strip()
+                think_words = final_words = 0
+                turns = 0
+                for m in rec["messages"]:
+                    if m["role"] != "assistant":
+                        continue
+                    turns += 1
+                    content = m["content"]
+                    parts = content.split(T_CLOSE)
+                    thinking = " ".join(p.strip() for p in parts[:-1]).replace(T_OPEN, "")
+                    final = parts[-1].strip()
+                    think_words += len(thinking.split())
+                    final_words += len(final.split())
                 recs.append({
                     "domain": domain,
                     "tier": tier,
                     "mode": mode,
-                    "think": len(thinking.split()),
-                    "final": len(final.split()),
+                    "think": think_words,
+                    "final": final_words,
+                    "turns": turns,
                 })
     return recs
 
@@ -78,52 +106,76 @@ def style(ax, title, xlab=None, ylab=None):
 
 
 def chart_structure_grid(recs):
-    """3x3 dot grid: domains by tiers, marker size = records per cell."""
-    fig, ax = plt.subplots(figsize=(8.5, 6))
+    """Grid of domains by tier.
+
+    The three separated-difficulty domains form a 3x3 grid (one cell per
+    domain x tier, 100 records each). user_correction is drawn as a fourth row
+    with a single wide cell spanning all three tiers, since it is one mixed
+    folder of 300.
+    """
     counts = defaultdict(int)
     for r in recs:
         counts[(r["domain"], r["tier"])] += 1
-    for i, dom in enumerate(DOMAINS):
-        for j, tier in enumerate(TIERS):
+
+    fig, ax = plt.subplots(figsize=(9, 7))
+    # 3x3 separated grid
+    for i, dom in enumerate(SEPARATED_DOMAINS):
+        for j, tier in enumerate(["easy", "medium", "hard"]):
             n = counts[(dom, tier)]
             ax.scatter(j, -i, s=n * 14, color=DOMAIN_COLOR[dom], alpha=0.85,
                        edgecolors="white", linewidths=2, zorder=3)
             ax.text(j, -i, str(n), ha="center", va="center", fontsize=13,
                     fontweight="bold", color="white", zorder=4)
+    # user_correction row: one wide cell spanning the three tier columns
+    row_y = -len(SEPARATED_DOMAINS)
+    n_mix = counts[(MIX_DOMAIN, "mix")]
+    rect = Rectangle((-0.5, row_y - 0.36), 3.0, 0.72,
+                     facecolor=MIX_DOMAIN_COLOR, alpha=0.85,
+                     edgecolor="white", linewidth=2, zorder=3)
+    ax.add_patch(rect)
+    ax.text(1.0, row_y, f"{n_mix}  (mix)", ha="center", va="center",
+            fontsize=13, fontweight="bold", color="white", zorder=4)
+
     ax.set_xlim(-0.55, 2.55)
-    ax.set_ylim(-2.55, 0.55)
+    ax.set_ylim(row_y - 0.7, 0.55)
     ax.set_xticks(range(3))
-    ax.set_xticklabels([t.capitalize() for t in TIERS], fontsize=12)
-    ax.set_yticks(range(-3, 0))
-    ax.set_yticklabels([d.upper() for d in DOMAINS], fontsize=12, fontweight="bold")
+    ax.set_xticklabels(["Easy", "Medium", "Hard"], fontsize=12)
+    rows = SEPARATED_DOMAINS + [MIX_DOMAIN]
+    ax.set_yticks(range(-len(rows), 0))
+    ax.set_yticklabels([d.upper() for d in rows], fontsize=12, fontweight="bold")
     ax.set_xlabel("Difficulty tier", fontsize=12)
     ax.set_ylabel("Domain", fontsize=12)
     for spine in ax.spines.values():
         spine.set_visible(False)
     ax.tick_params(length=0)
-    style(ax, "A 3 × 3 × 3 library — 100 records in every cell")
+    style(ax, "3,000 records — 3×3 separated difficulty + 1 mixed category")
     fig.tight_layout()
     fig.savefig(OUT / "structure_grid.png", dpi=160)
 
 
 def chart_depth_by_tier(recs):
-    """Box plot: reasoning words per record by tier. The central design proof."""
-    data = [[r["think"] for r in recs if r["tier"] == t] for t in TIERS]
-    fig, ax = plt.subplots(figsize=(8.5, 5.8))
-    bp = ax.boxplot(data, tick_labels=[t.capitalize() for t in TIERS],
+    """Box plot: reasoning words per record by tier. The central design proof.
+
+    Includes the mix tier so the reader can see it is a deliberate blend
+    spanning the three separated depths, not a fourth discrete level.
+    """
+    order = ["easy", "medium", "hard", "mix"]
+    data = [[r["think"] for r in recs if r["tier"] == t] for t in order]
+    fig, ax = plt.subplots(figsize=(9.5, 5.8))
+    bp = ax.boxplot(data, tick_labels=[t.capitalize() for t in order],
                     patch_artist=True, widths=0.55, showfliers=False,
                     medianprops=dict(color="#222222", linewidth=2),
                     whiskerprops=dict(color="#555555"),
                     capprops=dict(color="#555555"))
-    for patch, tier in zip(bp["boxes"], TIERS):
+    for patch, tier in zip(bp["boxes"], order):
         patch.set_facecolor(TIER_COLOR[tier])
         patch.set_alpha(0.9)
-    for i, t in enumerate(TIERS):
+    for i, t in enumerate(order):
         d = data[i]
-        ax.text(i + 1, np.percentile(d, 50) + max(d) * 0.02,
+        ax.text(i + 1, np.percentile(d, 50) + max(r["think"] for r in recs) * 0.02,
                 f"median {int(np.median(d))}w", ha="center", fontsize=10,
                 color="#333333", fontstyle="italic")
-    style(ax, "Reasoning depth scales with difficulty (2,700 records)",
+    style(ax, "Reasoning depth scales with difficulty (3,000 records)",
           ylab="words of reasoning per record")
     fig.tight_layout()
     fig.savefig(OUT / "think_depth_by_tier.png", dpi=160)
@@ -162,13 +214,16 @@ def chart_modes(recs):
 
 def chart_think_histogram(recs):
     """Stacked histogram of reasoning length, colored by tier."""
+    order = ["easy", "medium", "hard", "mix"]
     fig, ax = plt.subplots(figsize=(9, 5))
     bins = np.arange(0, 1101, 25)
-    data = [[r["think"] for r in recs if r["tier"] == t] for t in TIERS]
+    data = [[r["think"] for r in recs if r["tier"] == t] for t in order]
     ax.hist(data, bins=bins, stacked=True,
-            color=[TIER_COLOR[t] for t in TIERS],
-            label=[t.capitalize() for t in TIERS], alpha=0.92)
-    style(ax, "Reasoning length distribution across 2,700 records",
+            color=[TIER_COLOR[t] for t in order],
+            label=[f"{t.capitalize()}" + (" (blend)" if t == "mix" else "")
+                   for t in order],
+            alpha=0.92)
+    style(ax, "Reasoning length distribution across 3,000 records",
           xlab="words of reasoning", ylab="records")
     ax.legend(frameon=False, fontsize=11)
     fig.tight_layout()
@@ -177,19 +232,20 @@ def chart_think_histogram(recs):
 
 def chart_final_by_tier(recs):
     """Box plot of final-answer length by tier."""
-    data = [[r["final"] for r in recs if r["tier"] == t] for t in TIERS]
-    fig, ax = plt.subplots(figsize=(8.5, 5))
-    bp = ax.boxplot(data, tick_labels=[t.capitalize() for t in TIERS],
+    order = ["easy", "medium", "hard", "mix"]
+    data = [[r["final"] for r in recs if r["tier"] == t] for t in order]
+    fig, ax = plt.subplots(figsize=(9.5, 5))
+    bp = ax.boxplot(data, tick_labels=[t.capitalize() for t in order],
                     patch_artist=True, widths=0.55, showfliers=False,
                     medianprops=dict(color="#222222", linewidth=2),
                     whiskerprops=dict(color="#555555"),
                     capprops=dict(color="#555555"))
-    for patch, tier in zip(bp["boxes"], TIERS):
+    for patch, tier in zip(bp["boxes"], order):
         patch.set_facecolor(TIER_COLOR[tier])
         patch.set_alpha(0.9)
-    for i, t in enumerate(TIERS):
+    for i, t in enumerate(order):
         d = data[i]
-        ax.text(i + 1, np.percentile(d, 50) + max(d) * 0.03,
+        ax.text(i + 1, np.percentile(d, 50) + max(r["final"] for r in recs) * 0.03,
                 f"median {int(np.median(d))}w", ha="center", fontsize=10,
                 color="#333333", fontstyle="italic")
     style(ax, "Final answers carry their reasoning — scaled to tier",
@@ -199,19 +255,20 @@ def chart_final_by_tier(recs):
 
 
 def chart_domain_depth(domain):
-    """One chart per domain: reasoning length by tier within that domain."""
+    """One chart per separated domain: reasoning length by tier within it."""
     recs = [r for r in load_records() if r["domain"] == domain]
-    data = [[r["think"] for r in recs if r["tier"] == t] for t in TIERS]
+    order = ["easy", "medium", "hard"]
+    data = [[r["think"] for r in recs if r["tier"] == t] for t in order]
     fig, ax = plt.subplots(figsize=(8.5, 5))
-    bp = ax.boxplot(data, tick_labels=[t.capitalize() for t in TIERS],
+    bp = ax.boxplot(data, tick_labels=[t.capitalize() for t in order],
                     patch_artist=True, widths=0.55, showfliers=False,
                     medianprops=dict(color="#222222", linewidth=2),
                     whiskerprops=dict(color="#555555"),
                     capprops=dict(color="#555555"))
-    for patch, tier in zip(bp["boxes"], TIERS):
+    for patch in bp["boxes"]:
         patch.set_facecolor(DOMAIN_COLOR[domain])
         patch.set_alpha(0.9)
-    for i, t in enumerate(TIERS):
+    for i, t in enumerate(order):
         d = data[i]
         ax.text(i + 1, np.percentile(d, 50) + max(d) * 0.03,
                 f"median {int(np.median(d))}w", ha="center", fontsize=10,
@@ -223,19 +280,40 @@ def chart_domain_depth(domain):
     plt.close(fig)
 
 
+def chart_mix_depth():
+    """user_correction has no tiers, so show its reasoning-length distribution
+    as a histogram colored by mode. This is the depth chart for the mix
+    category, parallel to the per-domain depth charts above."""
+    recs = [r for r in load_records() if r["domain"] == MIX_DOMAIN]
+    fig, ax = plt.subplots(figsize=(9, 5))
+    bins = np.arange(0, max(r["think"] for r in recs) + 50, 25)
+    data = [[r["think"] for r in recs if r["mode"] == m] for m in MODES]
+    ax.hist(data, bins=bins, stacked=True,
+            color=[MODE_COLOR[m] for m in MODES],
+            label=[MODE_LABEL[m] for m in MODES], alpha=0.92)
+    style(ax, "User correction — reasoning length (300 records, mixed difficulty)",
+          xlab="words of reasoning per record", ylab="records")
+    ax.legend(frameon=False, fontsize=10)
+    fig.tight_layout()
+    fig.savefig(OUT / "user_correction_depth.png", dpi=160)
+    plt.close(fig)
+
+
 def chart_records_per_file(recs):
     """Horizontal bar: one bar per file, all exactly 100."""
-    files = defaultdict(int)
-    for r in recs:
-        files[(r["domain"], r["tier"])] += 0
-    # group by domain+tier file set is uniform; instead show records per file
     per_file = defaultdict(int)
     for r in recs:
         per_file[(r["domain"], r["tier"], r["mode"])] += 1
-    labels = [f"{d}/{t}/{m.replace('_', ' ')}" for (d, t, m) in sorted(per_file)]
-    vals = [per_file[k] for k in sorted(per_file)]
-    fig, ax = plt.subplots(figsize=(8.5, 8))
-    colors = [DOMAIN_COLOR[k[0]] for k in sorted(per_file)]
+    keys = sorted(per_file)
+    labels = [f"{d}/{t}/{m.replace('_', ' ')}" for (d, t, m) in keys]
+    vals = [per_file[k] for k in keys]
+    fig, ax = plt.subplots(figsize=(8.5, 9))
+    colors = []
+    for (d, t, m) in keys:
+        if d == MIX_DOMAIN:
+            colors.append(MIX_DOMAIN_COLOR)
+        else:
+            colors.append(DOMAIN_COLOR[d])
     ax.barh(range(len(vals)), vals, color=colors, alpha=0.9)
     ax.set_yticks(range(len(vals)))
     ax.set_yticklabels(labels, fontsize=8)
@@ -243,7 +321,7 @@ def chart_records_per_file(recs):
     ax.set_xlim(0, 115)
     ax.axvline(100, color="#333333", linestyle="--", linewidth=1)
     ax.text(100, -0.7, "100 = complete", fontsize=10, color="#333333")
-    style(ax, "All 27 files hold exactly 100 records", xlab="records")
+    style(ax, "All 30 files hold exactly 100 records", xlab="records")
     fig.tight_layout()
     fig.savefig(OUT / "records_per_file.png", dpi=160)
 
@@ -259,8 +337,9 @@ def main():
     chart_think_histogram(recs)
     chart_final_by_tier(recs)
     chart_records_per_file(recs)
-    for dom in DOMAINS:
+    for dom in SEPARATED_DOMAINS:
         chart_domain_depth(dom)
+    chart_mix_depth()
     print("charts written to charts/:")
     for p in sorted(OUT.glob("*.png")):
         print(f"  {p.name}")

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild dataset.jsonl and eval.jsonl from the 27 source files.
+"""Rebuild dataset.jsonl and eval.jsonl from the 30 source files.
 
 Run from the repository root:
 

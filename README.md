@@ -2,13 +2,13 @@
 
 **A seed library for training language models to reason with self-correction.**
 
-![Records](https://img.shields.io/badge/records-2%2C700-blue)
-![Files](https://img.shields.io/badge/files-27-blue)
-![Structure](https://img.shields.io/badge/structure-3%20%C3%97%203%20%C3%97%203-blueviolet)
+![Records](https://img.shields.io/badge/records-3%2C000-blue)
+![Files](https://img.shields.io/badge/files-30-blue)
+![Domains](https://img.shields.io/badge/domains-4-blueviolet)
 ![Validator](https://img.shields.io/badge/validator-passing-brightgreen)
-![License](https://img.shields.io/badge/license-see%20repo-lightgrey)
+![Build](https://img.shields.io/badge/build.py-passing-brightgreen)
 
-> Teaches three reasoning behaviors -- catching your own errors, verifying correct answers, and rejecting false doubts -- across three domains, three difficulty tiers, and three reasoning modes.
+> Teaches three reasoning behaviors -- catching your own errors, verifying correct answers, and rejecting false doubts -- across four domains, three difficulty tiers, and three reasoning modes. Also includes multi-turn user-correction conversations where the user actively corrects or challenges the assistant.
 
 ---
 
@@ -16,32 +16,32 @@
 
 ```mermaid
 graph TB
-    subgraph REPO["Repository"]
+    subgraph REPO["Repository — 3,000 records"]
         direction TB
         subgraph MATH["math"]
             direction TB
-            M_E["easy<br>1-2 blocks<br>300 records"]
-            M_M["medium<br>3 blocks<br>300 records"]
-            M_H["hard<br>4-5 blocks<br>300 records"]
+            M_E["easy · 1-2 blocks · 300"]
+            M_M["medium · 3 blocks · 300"]
+            M_H["hard · 4-5 blocks · 300"]
             M_E ~~~ M_M ~~~ M_H
         end
         subgraph CODE["code"]
             direction TB
-            C_E["easy<br>1-2 blocks<br>300 records"]
-            C_M["medium<br>3 blocks<br>300 records"]
-            C_H["hard<br>4-5 blocks<br>300 records"]
+            C_E["easy · 1-2 blocks · 300"]
+            C_M["medium · 3 blocks · 300"]
+            C_H["hard · 4-5 blocks · 300"]
             C_E ~~~ C_M ~~~ C_H
         end
         subgraph GEN["general"]
             direction TB
-            G_E["easy<br>1-2 blocks<br>300 records"]
-            G_M["medium<br>3 blocks<br>300 records"]
-            G_H["hard<br>4-5 blocks<br>300 records"]
+            G_E["easy · 1-2 blocks · 300"]
+            G_M["medium · 3 blocks · 300"]
+            G_H["hard · 4-5 blocks · 300"]
             G_E ~~~ G_M ~~~ G_H
         end
-        LEAF["each tier folder: 3 mode files × 100 records<br>wrong_then_fix.jsonl · right_and_confirm.jsonl · right_doubt_reaffirm.jsonl"]
+        UC["user_correction · mix<br>300 records · multi-turn<br>easy+medium+hard mixed"]
     end
-    REPO ~~~ LEAF
+    REPO ~~~ UC
 ```
 
 Every leaf folder holds exactly three files -- one per reasoning mode:
@@ -52,17 +52,19 @@ Every leaf folder holds exactly three files -- one per reasoning mode:
 | `right_and_confirm.jsonl` | First attempt right → scrutinize → verify | Being right doesn't end the reasoning; proof matters |
 | `right_doubt_reaffirm.jsonl` | First answer right → doubt with wrong alternative → reject the doubt | Second-guessing is itself fallible; don't manufacture errors |
 
+The `user_correction/mix/` folder is the exception to the separated-difficulty structure: it contains a single folder of 300 multi-turn records with an even mix of easy (1-2 blocks), medium (3 blocks), and hard (4-5 blocks) -- 100 per mode file. These records teach the model how to respond to **external** corrections and challenges from a user, not just internal self-correction.
+
 ---
 
 ## Stats
 
 | Property | Value |
 |----------|-------|
-| Records | **2,700** |
-| Files | **27** (one per domain × tier × mode) |
+| Records | **3,000** |
+| Files | **30** (one per domain × tier × mode) |
 | Records per file | exactly **100** |
-| Domains | `math`, `code`, `general` |
-| Difficulty tiers | easy (1-2 blocks), medium (3 blocks), hard (4-5 blocks) |
+| Domains | `math`, `code`, `general`, `user_correction` |
+| Difficulty tiers | easy (1-2 blocks), medium (3 blocks), hard (4-5 blocks), mix (1-5 blocks) |
 | Reasoning modes | wrong-then-fix, right-and-confirm, right-doubt-reaffirm |
 | System prompts | ~30% of records (persona only, never instruction-gated) |
 | Format | JSONL -- one JSON object per line |
@@ -73,10 +75,11 @@ Every leaf folder holds exactly three files -- one per reasoning mode:
 | Tier | Mean reasoning | Mean final answer | Blocks |
 |------|---------------:|------------------:|:-----:|
 | Easy | ~51 words | ~4 words | 1-2 |
-| Medium | ~168 words | ~35 words | 3 |
-| Hard | ~552 words | ~96 words | 4-5 |
+| Medium | ~177 words | ~35 words | 3 |
+| Hard | ~550 words | ~96 words | 4-5 |
+| Mix | ~171 words | ~65 words | 1-5 |
 
-Easy problems get a quick check. Hard problems get multiple rounds of catching, fixing, and verifying. The model learns to match effort to complexity instead of padding trivial answers or truncating hard ones.
+Easy problems get a quick check. Hard problems get multiple rounds of catching, fixing, and verifying. The model learns to match effort to complexity instead of padding trivial answers or truncating hard ones. The mix row is the `user_correction` category, where each record is a four-message conversation and the totals reflect both assistant turns.
 
 ---
 
@@ -84,29 +87,25 @@ Easy problems get a quick check. Hard problems get multiple rounds of catching, 
 
 Charts generated from the actual data by [`charts/generate_charts.py`](charts/generate_charts.py) -- rerun it any time the dataset changes.
 
-**A cell for every combination of domain and tier** -- no gaps in the grid:
+**A cell for every combination of domain and tier** -- the three separated-difficulty domains form a 3×3 grid, and `user_correction` sits beneath as one wide mixed cell:
 
 ![Structure grid](charts/structure_grid.png)
 
-**Reasoning scales with difficulty** -- easy questions get a quick check, hard ones get multiple verification rounds, and the distribution barely overlaps. That's the core design principle, made visible:
+**Reasoning scales with difficulty** -- easy questions get a quick check, hard ones get multiple verification rounds, and the three separated tiers barely overlap. The blue `mix` band is `user_correction`, deliberately blended across all three depths:
 
 ![Thinking depth by tier](charts/think_depth_by_tier.png)
 
-**Final answers do the same** -- short for trivial questions, substantive for hard ones:
+**Final answers do the same** -- short for trivial questions, substantive for hard ones, with the mix category spanning the range:
 
 ![Final answer depth by tier](charts/final_answer_by_tier.png)
 
-**All three modes are evenly represented** -- the same count of records and comparable thinking depth, so no single self-correction behavior dominates the training signal:
+**All three modes are evenly represented** -- 1,000 records each, comparable thinking depth:
 
 ![Mode comparison](charts/mode_comparison.png)
 
-**The reasoning-length distribution is trimodal** -- easy, medium, and hard records form distinct humps with little overlap:
+**The reasoning-length distribution is trimodal at the separated tiers** -- easy, medium, and hard form distinct humps -- and the mix category (blue) spans across them, as its blend is designed to:
 
 ![Reasoning length distribution](charts/think_length_distribution.png)
-
-**Every file is complete** -- all 27 files hold exactly 100 records:
-
-![Records per file](charts/records_per_file.png)
 
 ---
 
@@ -117,19 +116,32 @@ Charts generated from the actual data by [`charts/generate_charts.py`](charts/ge
 ```json
 {"messages": [
   {"role": "user", "content": "What is 7 x 8?"},
-  {"role": "assistant", "content": "<think>\nFirst instinct: 54 (confused with 6x9).\n</think>\n\n<think>\nWait -- 7x8 is 56, not 54. Seven eights are fifty-six.\n</think>\n\n56. I confused it with 6x9=54 initially."}
+  {"role": "assistant", "content": "imd\nFirst instinct: 54 (confused with 6x9).\nimb\n\n\nimd\nWait -- 7x8 is 56, not 54. Seven eights are fifty-six.\nimb\n\n56. I confused it with 6x9=54 initially."}
 ]}
 ```
 
-A plausible mistake, a genuine catch, a corrected answer. This mode prevents overconfidence: even easy questions can be misread or misremembered.
+A plausible mistake, a genuine catch, a corrected answer. This mode prevents overconfidence.
 
 ### `right_and_confirm` -- learning that verification isn't optional
 
-The first answer is correct, then examined skeptically, then verified by a genuinely different method. This mode prevents lucky answers from standing unexamined.
+The first answer is correct, then examined skeptically, then verified by a genuinely different method.
 
 ### `right_doubt_reaffirm` -- learning not to manufacture errors
 
-The first answer is correct, then a tempting wrong second-guess appears, then the model recognizes the *doubt itself* was the error and the original answer stands. This mode prevents unnecessary self-doubt from leaking into final answers.
+The first answer is correct, then a tempting wrong second-guess appears, then the model recognizes the *doubt itself* was the error.
+
+### `user_correction` -- learning to respond to external feedback
+
+Multi-turn conversations where the **user** actively corrects or challenges the assistant:
+
+```
+user: "What is 5 x 5 if 5 is now 2?"
+assistant: "5 x 5 becomes 2 x 5 = 10."
+user: "no, the answer is 4. I said 5 is now 2, so it is 2 x 2"
+assistant: (thinks about why the substitution was half-done) "4. You are right."
+```
+
+The model learns to **accept corrections gracefully** when it's wrong, **defend correct answers firmly** when the user is wrong, and **provide independent verification** when asked to double-check.
 
 ---
 
@@ -138,6 +150,7 @@ The first answer is correct, then a tempting wrong second-guess appears, then th
 - **[`math/`](math/README.md)** -- arithmetic, algebra, probability, combinatorics, number theory, geometry, calculus, sequences and series, optimization, Fermi estimation. From "What is 5 + 5?" to "Does the harmonic series diverge?"
 - **[`code/`](code/README.md)** -- Python semantics, debugging, design patterns, algorithms, data structures, metaprogramming, concurrency, async. From `len("hello")` to descriptor protocols and the GIL.
 - **[`general/`](general/README.md)** -- science reasoning (Olbers' paradox, tidal locking, square-cube law), logic (syllogisms, fallacies, knights and knaves), reading comprehension, causal reasoning, grammar, ethics, history, planning. Everything that isn't code or math.
+- **[`user_correction/`](user_correction/mix/README.md)** -- multi-turn conversations where the user actively corrects, challenges, or asks to verify the assistant's answer. Mixed difficulty (easy + medium + hard in one folder).
 
 ---
 
@@ -149,7 +162,7 @@ Each record is a chat-formatted JSON object (OpenAI messages style), one per lin
 {"messages": [
   {"role": "system", "content": "You are a careful mathematician."},
   {"role": "user", "content": "..."},
-  {"role": "assistant", "content": "<think>\n…\n</think>\n\n<think>\n…\n</think>\n\n…final answer…"}
+  {"role": "assistant", "content": "imd\n…\nimb\n\nimd\n…\nimb\n\n…final answer…"}
 ]}
 ```
 
@@ -157,10 +170,10 @@ The `system` message is present in ~30% of records and *never* instructs the rea
 
 ### Structural rules
 
-1. **Only the final answer lives outside the tags.** No prose may sit between one `</think>` and the next `<think>`. A record that emits visible text between blocks teaches the model to break out of its reasoning mid-stream. This rule cannot be relaxed.
+1. **Only the final answer lives outside the tags.** No prose may sit between one `imb` and the next `imd`. A record that emits visible text between blocks teaches the model to break out of its reasoning mid-stream. This rule cannot be relaxed.
 2. **Whitespace between blocks varies by file** (`\n`, `\n\n`, or `\n\n\n`) and is internally consistent within each file. Consumers should split on the tags, not the whitespace.
 3. **Newlines inside content strings are JSON-escaped** (`\n`). Think tags are literal `<`/`>` characters. Files use Unix line endings.
-4. **Block count matches the tier:** easy = 1-2, medium = 3, hard = 4-5.
+4. **Block count matches the tier:** easy = 1-2, medium = 3, hard = 4-5, mix = 1-5.
 
 ---
 
@@ -188,29 +201,28 @@ Exits non-zero on any structural violation: unbalanced tags, prose outside the t
 
 It also reports soft observations that don't fail the run: duplicate prompts within a single file, and the most-repeated reasoning sentence per file (template risk). Watch that last one while writing -- a closing sentence that repeats across a file becomes a habit the model reproduces verbatim.
 
-**Shared prompts across modes are intentional.** The same question appearing in `right_and_confirm` and `wrong_then_fix` teaches that being right or wrong is not a property of the question. The requirement is that both trajectories reach the *same* final answer; divergent answers would be contradictory training data.
+**Shared prompts across modes are intentional.** The same question appearing in `right_and_confirm` and `wrong_then_fix` teaches that being right or wrong is not a property of the question.
 
 ---
 
-## Combine into a single dataset
+## Build
+
+```bash
+python build.py
+```
+
+Rebuilds `dataset.jsonl` and `eval.jsonl` from the 30 source files. The split is **grouped by prompt**, not by record index: all records sharing the same question land on the same side, so the model never trains on a question it is later scored on. Selection is by SHA-1 hash of the prompt, so the split is deterministic and stable -- editing one record does not reshuffle the rest.
 
 The repo ships with two ready-to-use files at the root:
 
 | File | Records | Purpose |
 |------|--------:|---------|
-| [`dataset.jsonl`](dataset.jsonl) | **2,430** | Training |
-| [`eval.jsonl`](eval.jsonl) | **270** | Validation during training |
+| [`dataset.jsonl`](dataset.jsonl) | **2,700** | Training |
+| [`eval.jsonl`](eval.jsonl) | **300** | Validation during training |
 
-Upload both to Unsloth Studio (or any compatible framework) as the training and validation files. The split is **stratified and disjoint**: every 10th record of every `domain/tier/mode` file goes to `eval.jsonl`, so each of the 27 cells contributes exactly 10 validation records, and no record appears in both files. If training and validation overlapped, the val loss would be misleadingly low because the model had memorized those examples.
+Upload both to Unsloth Studio (or any compatible framework) as the training and validation files.
 
-To regenerate from the library instead:
-
-```bash
-find . -name "*.jsonl" -not -path "./.git/*" -not -name "dataset.jsonl" -not -name "eval.jsonl" | sort | xargs cat > combined.jsonl
-```
-
-Order doesn't matter -- all files are independent.
-Order doesn't matter -- all files are independent.
+`eval.jsonl` may also be edited directly to add hand-written evaluation records that don't exist in any source file -- truly held-out data the model has never seen.
 
 ---
 
@@ -220,11 +232,11 @@ Order doesn't matter -- all files are independent.
 |------|----------|
 | 🏠 This page | Overview, format, principles |
 | ➕ [CONTRIBUTING.md](CONTRIBUTING.md) | How to add records: style rules, quality bar, validation gates |
+| 🤖 [AGENTS.md](AGENTS.md) | Rules for AI agents working in this repo |
 | 📐 [Math domain](math/README.md) | Topic coverage, sample records, tier/mode links |
 | 💻 [Code domain](code/README.md) | Topic coverage, sample records, tier/mode links |
 | 🌍 [General domain](general/README.md) | Topic coverage, sample records, tier/mode links |
-
-Difficulty pages: each tier folder (`easy/`, `medium/`, `hard/`) under every domain has its own README describing the tier's reasoning contract and showing a sample record per mode.
+| 💬 [User correction](user_correction/mix/README.md) | Multi-turn correction conversations, mixed difficulty |
 
 ---
 
