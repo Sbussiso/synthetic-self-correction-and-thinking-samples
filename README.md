@@ -194,10 +194,22 @@ It also reports soft observations that don't fail the run: duplicate prompts wit
 
 ## Combine into a single dataset
 
+The repo ships with two ready-to-use files at the root:
+
+| File | Records | Purpose |
+|------|--------:|---------|
+| [`dataset.jsonl`](dataset.jsonl) | **2,430** | Training |
+| [`eval.jsonl`](eval.jsonl) | **270** | Validation during training |
+
+Upload both to Unsloth Studio (or any compatible framework) as the training and validation files. The split is **stratified and disjoint**: every 10th record of every `domain/tier/mode` file goes to `eval.jsonl`, so each of the 27 cells contributes exactly 10 validation records, and no record appears in both files. If training and validation overlapped, the val loss would be misleadingly low because the model had memorized those examples.
+
+To regenerate from the library instead:
+
 ```bash
-find . -name "*.jsonl" | sort | xargs cat > combined.jsonl
+find . -name "*.jsonl" -not -path "./.git/*" -not -name "dataset.jsonl" -not -name "eval.jsonl" | sort | xargs cat > combined.jsonl
 ```
 
+Order doesn't matter — all files are independent.
 Order doesn't matter — all files are independent.
 
 ---
