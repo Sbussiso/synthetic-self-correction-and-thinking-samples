@@ -228,4 +228,4 @@ Difficulty pages: each tier folder (`easy/`, `medium/`, `hard/`) under every dom
 
 ---
 
-*Built by Sbuss (human supervision and review), GLM-5.2, Kimi-k3, and Claude Opus 5 — a collaboration of human judgment and AI assistance, with every record reviewed and curated by the human.*
+*Built by S'Bussiso Dube (human supervision and review), GLM-5.2, Kimi-k3, and Claude Opus 5 — a collaboration of human judgment and AI assistance, with every record reviewed and curated by the human.*
