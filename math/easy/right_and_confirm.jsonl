@@ -7,7 +7,7 @@
 {"messages": [{"role": "user", "content": "Is 5 greater than 3?"}, {"role": "assistant", "content": "<think>\n5 is two more than 3, so yes, 5 is greater than 3.\n</think>\n\nYes."}]}
 {"messages": [{"role": "system", "content": "You are a math tutor. Provide brief, correct answers."}, {"role": "user", "content": "What is 8 - 3?"}, {"role": "assistant", "content": "<think>\n8 - 3 = 5. Simple subtraction.\n</think>\n\n5"}]}
 {"messages": [{"role": "user", "content": "How many sides does a square have?"}, {"role": "assistant", "content": "<think>\nA square has 4 sides by definition -- all equal length.\n</think>\n\n4"}]}
-{"messages": [{"role": "system", "content": "You are an assistant that solves simple math problems."}, {"role": "user", "content": "What is 2 x 5?"}, {"role": "assistant", "content": "<think>\n2 x 5 = 10. Basic multiplication fact.\n</think>\n\n10"}]}
+{"messages": [{"role": "system", "content": "You are an assistant that solves simple math problems."}, {"role": "user", "content": "What is 2 x 5?"}, {"role": "assistant", "content": "<think>\n2 x 5 = 10. A standard multiplication fact.\n</think>\n\n10"}]}
 {"messages": [{"role": "system", "content": "You are a precise math assistant."}, {"role": "user", "content": "What is 12 + 8?"}, {"role": "assistant", "content": "<think>\n12 + 8 = 20. Adding 8 to 12 gives 20.\n</think>\n\n<think>\nQuick check: 8 + 12 = 20 by commutativity. Confirmed.\n</think>\n\n20"}]}
 {"messages": [{"role": "user", "content": "Is 15 odd?"}, {"role": "assistant", "content": "<think>\n15 / 2 = 7 remainder 1, so 15 is not divisible by 2. It's odd.\n</think>\n\n<think>\nCheck: odd numbers end in 1, 3, 5, 7, or 9. 15 ends in 5, so yes, it's odd.\n</think>\n\nYes."}]}
 {"messages": [{"role": "user", "content": "What is 10 x 3?"}, {"role": "assistant", "content": "<think>\n10 x 3 = 30. Multiplying 10 by 3 gives 30.\n</think>\n\n<think>\nQuick check: 10 + 10 + 10 = 30. Confirmed.\n</think>\n\n30"}]}
@@ -25,17 +25,17 @@
 {"messages": [{"role": "system", "content": "Solve simple math problems directly."}, {"role": "user", "content": "What is 20 / 4?"}, {"role": "assistant", "content": "<think>\n20 / 4 = 5. Basic division.\n</think>\n\n5"}]}
 {"messages": [{"role": "user", "content": "Is 8 even?"}, {"role": "assistant", "content": "<think>\n8 ends in 8, which is in {0,2,4,6,8}, so it's even.\n</think>\n\nYes."}]}
 {"messages": [{"role": "system", "content": "You answer math questions briefly."}, {"role": "user", "content": "Is 7 odd?"}, {"role": "assistant", "content": "<think>\n7 is not divisible by 2 (7 / 2 = 3 r 1), so it's odd.\n</think>\n\nYes."}]}
-{"messages": [{"role": "user", "content": "What is 3 x 7?"}, {"role": "assistant", "content": "<think>\n3 x 7 = 21. Basic multiplication fact.\n</think>\n\n21"}]}
+{"messages": [{"role": "user", "content": "What is 3 x 7?"}, {"role": "assistant", "content": "<think>\n3 x 7 = 21. This is a multiplication fact.\n</think>\n\n21"}]}
 {"messages": [{"role": "user", "content": "What is 15 - 8?"}, {"role": "assistant", "content": "<think>\n15 - 8 = 7. Basic subtraction.\n</think>\n\n7"}]}
 {"messages": [{"role": "user", "content": "What is 4 x 5?"}, {"role": "assistant", "content": "<think>\n4 x 5 = 20. Basic multiplication.\n</think>\n\n20"}]}
 {"messages": [{"role": "system", "content": "You are a math helper giving short answers."}, {"role": "user", "content": "What is 18 / 3?"}, {"role": "assistant", "content": "<think>\n18 / 3 = 6. Basic division.\n</think>\n\n6"}]}
 {"messages": [{"role": "user", "content": "Is 12 even?"}, {"role": "assistant", "content": "<think>\n12 ends in 2, an even digit, so it's even.\n</think>\n\nYes."}]}
 {"messages": [{"role": "user", "content": "What is 9 + 6?"}, {"role": "assistant", "content": "<think>\n9 + 6 = 15. 9 + 6 = 15, carry 1 to tens place.\n</think>\n\n15"}]}
-{"messages": [{"role": "system", "content": "You are a straightforward math solver."}, {"role": "user", "content": "What is 7 x 4?"}, {"role": "assistant", "content": "<think>\n7 x 4 = 28. Basic multiplication fact.\n</think>\n\n28"}]}
+{"messages": [{"role": "system", "content": "You are a straightforward math solver."}, {"role": "user", "content": "What is 7 x 4?"}, {"role": "assistant", "content": "<think>\n7 x 4 = 28. Known from the multiplication table.\n</think>\n\n28"}]}
 {"messages": [{"role": "user", "content": "What is 100 / 4?"}, {"role": "assistant", "content": "<think>\n100 / 4 = 25. A quarter of 100 is 25.\n</think>\n\n25"}]}
 {"messages": [{"role": "user", "content": "What is 30 - 15?"}, {"role": "assistant", "content": "<think>\n30 - 15 = 15. Half of 30 is 15.\n</think>\n\n15"}]}
 {"messages": [{"role": "user", "content": "Is 21 odd?"}, {"role": "assistant", "content": "<think>\n21 ends in 1, an odd digit, so it's odd.\n</think>\n\nYes."}]}
-{"messages": [{"role": "system", "content": "Provide brief, correct math answers."}, {"role": "user", "content": "What is 6 x 6?"}, {"role": "assistant", "content": "<think>\n6 x 6 = 36. Basic multiplication fact.\n</think>\n\n36"}]}
+{"messages": [{"role": "system", "content": "Provide brief, correct math answers."}, {"role": "user", "content": "What is 6 x 6?"}, {"role": "assistant", "content": "<think>\n6 x 6 = 36. A basic times-table fact.\n</think>\n\n36"}]}
 {"messages": [{"role": "user", "content": "What is 45 / 9?"}, {"role": "assistant", "content": "<think>\n45 / 9 = 5. Basic division.\n</think>\n\n5"}]}
 {"messages": [{"role": "user", "content": "What is 11 + 9?"}, {"role": "assistant", "content": "<think>\n11 + 9 = 20. Adding 9 to 11 gives 20.\n</think>\n\n20"}]}
 {"messages": [{"role": "user", "content": "What is 8 x 5?"}, {"role": "assistant", "content": "<think>\n8 x 5 = 40. Basic multiplication.\n</think>\n\n40"}]}
