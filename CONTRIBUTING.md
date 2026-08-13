@@ -111,4 +111,10 @@ Never anything that names reasoning, verification, checking, analysis, or step-b
 
 Look at the existing records in the same file first. The style that already lives there is the one the validator was tuned against, and the one the model already saw.
 
+## Derived files
+
+`dataset.jsonl` is **generated** from the source library, never edited directly. See [`AGENTS.md`](AGENTS.md) for the rebuild procedure.
+
+`eval.jsonl` may be **edited directly** — it can contain records that don't exist in any source file, making it truly held-out evaluation data. If you regenerate it from the rebuild script, any hand-written eval records will be overwritten, so add them to a source file first or manage `eval.jsonl` separately.
+
 [🏠 Back to README](README.md)
