@@ -74,10 +74,10 @@ The `user_correction/mix/` folder is the exception to the separated-difficulty s
 
 | Tier | Mean reasoning | Mean final answer | Blocks |
 |------|---------------:|------------------:|:-----:|
-| Easy | ~51 words | ~4 words | 1-2 |
-| Medium | ~177 words | ~35 words | 3 |
-| Hard | ~550 words | ~96 words | 4-5 |
-| Mix | ~171 words | ~65 words | 1-5 |
+| Easy | ~53 words | ~4 words | 1-2 |
+| Medium | ~186 words | ~35 words | 3 |
+| Hard | ~570 words | ~96 words | 4-5 |
+| Mix | ~174 words | ~65 words | 1-5 |
 
 Easy problems get a quick check. Hard problems get multiple rounds of catching, fixing, and verifying. The model learns to match effort to complexity instead of padding trivial answers or truncating hard ones. The mix row is the `user_correction` category, where each record is a four-message conversation and the totals reflect both assistant turns.
 
